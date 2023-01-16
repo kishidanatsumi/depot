@@ -21,8 +21,9 @@ for act in action:
    bpy.context.object.animation_data.action = bpy.data.actions.get(act.name)
    print("Apply:",act)
    bpy.context.view_layer.objects.active = bpy.context.scene.objects["M_Head"]
+   #fix shape key
    bpy.ops.object.modifier_apply_as_shapekey(keep_modifier = True, modifier = object_sel, report = True)
-   
+   #clear pose
    bpy.context.view_layer.objects.active = bpy.context.scene.objects[object_sel]
    bpy.ops.object.mode_set(mode = 'POSE')
    bpy.ops.pose.select_all(action='SELECT')
