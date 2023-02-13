@@ -8,6 +8,8 @@ for object in bpy.context.selectable_objects:
      object_sel=object.name
      break
 
+#bpy.ops.mmd_tools.set_shadeless_glsl_shading()
+        
 #set active to armature
 bpy.context.view_layer.objects.active = bpy.context.scene.objects[object_sel]
 
