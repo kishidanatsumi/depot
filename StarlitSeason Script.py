@@ -2,7 +2,7 @@ import bpy
 import re
 
 #合并mesh上的口部表情
-bpy.ops.object.join_shapes()
+#bpy.ops.object.join_shapes()
 
 #将各帧形变应用为形态键
 for i in range (0, 105):
@@ -28,7 +28,7 @@ for i in range (33, 137): ## 33 = index of shape key 'armature' + 1; 137 = 33 + 
 
 #删除多余mesh
 for single_obj in bpy.context.selectable_objects:
-    matched = e.search("(Morph.*)", single_obj.name)
+    matched = re.search("(Morph.*)", single_obj.name)
  #exceptions if action name do not contain "|"
     if not matched:
         continue
