@@ -1,3 +1,4 @@
+#简易的gif合并，无透明度，黑底
 import imageio
 import os
 import sys
