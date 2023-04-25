@@ -1,3 +1,4 @@
+#带透明度的gif合并
 import sys
 from PIL import Image
 
