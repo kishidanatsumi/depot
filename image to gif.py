@@ -3,12 +3,10 @@ import imageio
 import os
 import sys
 
-pic_path = sys.argv[1]
+input_files = sys.argv[1:]
 
 fps = 25
 
-input_images = [os.path.join(pic_path, f) for f in os.listdir(pic_path) if f.endswith('.jpg') or f.endswith('.png')]
-
-imageio.mimsave('animation.gif', [imageio.imread(f) for f in input_images], fps=fps)
+imageio.mimsave('animation.gif', [imageio.imread(f) for f in input_files], fps=fps)
 
 print("done")
