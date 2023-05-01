@@ -2,21 +2,24 @@
 import sys
 from PIL import Image
 
-fps = 25
+fps = 30
 input_files = sys.argv[1:]
+
+sel = 0
 
 output_file = "out.gif"
 images = [Image.open(file).convert('RGBA') for file in input_files]
 
 width, height = images[0].size
 
-for image in images:
-    print("start process:",image)
-    for y in range(height):
-        for x in range(width):
-            r, g, b, a = image.getpixel((x, y))
-            if a < 128:
-                image.putpixel((x, y), (0, 0, 0, 0))
+if sel == 1:
+    for image in images:
+        print("start process:",image)
+        for y in range(height):
+            for x in range(width):
+                r, g, b, a = image.getpixel((x, y))
+                if a < 128:
+                    image.putpixel((x, y), (0, 0, 0, 0))
 
 print("start gif")
 
