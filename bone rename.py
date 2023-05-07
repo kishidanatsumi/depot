@@ -26,9 +26,9 @@ dic_cgss = {
 "Iindex_01_R":"右人指１","Index_02_R":"右人指２","Index_03_R":"右人指３",
 "Middle_01_R":"右中指１","Middle_02_R":"右中指２","Middle_03_R":"右中指３",
 "Ring_01_R":"右薬指１","Ring_02_R":"右薬指２","Ring_03_R":"右薬指３",
-"Pinky_01_R":"右小指１","Pinky_02_R":"右小指２","Pinky_03_R":"右小指３"
+"Pinky_01_R":"右小指１","Pinky_02_R":"右小指２","Pinky_03_R":"右小指３",
 
-"Eye_L":"左目","Eye_R":"右目",
+"Eye_L":"左目","Eye_R":"右目"
 }
 
 dic_cgss_mot = {
