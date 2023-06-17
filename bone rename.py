@@ -80,7 +80,7 @@ dic_sifas = {
 dic_starlit = {
 #"AO_Attach_L"
 #"AO_Attach_R"
-"AO_Base":"センター","AO_Neck":"首","AO_Head":"頭",
+"AO_Base":"グルーブ","AO_Neck":"首","AO_Head":"頭",
 "AO_Hips":"下半身",
 #"AO_Looktarget""AO_Position"
 "AO_Spine":"上半身","AO_Spine1":"上半身1","AO_Spine2":"上半身2",
