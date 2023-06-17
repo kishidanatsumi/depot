@@ -3,8 +3,8 @@ import re
 import datetime
 print("=== Start at",datetime.datetime.now().strftime('%X'),"===")
 
-#1:CGSS 2:CGSS motion 3:SIFAS
-dic_sel = 2
+#1:CGSS 2:CGSS motion 3:SIFAS 4:starlit season motion
+dic_sel = 4
 
 dic_cgss = {
 "Position":"全ての親",
@@ -77,6 +77,35 @@ dic_sifas = {
 "RightHandPinky1":"右小指１","RightHandPinky2":"右小指２","RightHandPinky3":"右小指３",
 }
 
+dic_starlit = {
+#"AO_Attach_L"
+#"AO_Attach_R"
+"AO_Base":"センター","AO_Neck":"首","AO_Head":"頭",
+"AO_Hips":"下半身",
+#"AO_Looktarget""AO_Position"
+"AO_Spine":"上半身","AO_Spine1":"上半身1","AO_Spine2":"上半身2",
+
+"AO_UpLeg_L":"左足","AO_Leg_L":"左ひざ","AO_Foot_L":"左足首","AO_Toe_L":"左つま先",
+"AO_UpLeg_R":"右足","AO_Leg_R":"右ひざ","AO_Foot_R":"右足首","AO_Toe_R":"右つま先",
+
+"AO_Shoulder_L":"左肩","AO_Arm_L":"左腕","AO_ForeArm_L":"左ひじ","AS_Hand_L":"左手首",
+"AO_Shoulder_R":"右肩","AO_Arm_R":"右腕","AO_ForeArm_R":"右ひじ","AS_Hand_R":"右手首",
+
+"AS_Thumb1_R":"右親指０","AS_Thumb2_R":"右親指１","AS_Thumb3_R":"右親指２",
+"AS_Index1_R":"右人指１","AS_Index2_R":"右人指２","AS_Index3_R":"右人指３",
+"AS_Middle1_R":"右中指１","AS_Middle2_R":"右中指２","AS_Middle3_R":"右中指３",
+#"AS_Ring_R":""
+"AS_Ring1_R":"右薬指１","AS_Ring2_R":"右薬指２","AS_Ring3_R":"右薬指３",
+"AS_Pinky1_R":"右小指１","AS_Pinky2_R":"右小指２","AS_Pinky3_R":"右小指３",
+
+"AS_Thumb1_L":"左親指０","AS_Thumb2_L":"左親指１","AS_Thumb3_L":"左親指２",
+"AS_Index1_L":"左人指１","AS_Index2_L":"左人指２","AS_Index3_L":"左人指３",
+"AS_Middle1_L":"左中指１","AS_Middle2_L":"左中指２","AS_Middle3_L":"左中指３",
+#"AS_Ring_L":""
+"AS_Ring1_L":"左薬指１","AS_Ring2_L":"左薬指２","AS_Ring3_L":"左薬指３",
+"AS_Pinky1_L":"左小指１","AS_Pinky2_L":"左小指２","AS_Pinky3_L":"左小指３",
+}
+
 #CGSS部分
 if dic_sel == 1 :
     dic=dic_cgss
@@ -88,9 +117,13 @@ if dic_sel == 2 :
     target_obj=bpy.context.active_object
 
 #SIFAS部分
-elif dic_sel == 3 :
+if dic_sel == 3 :
     dic=dic_sifas
     target_obj=bpy.data.objects['Move']
+
+elif dic_sel == 4 :
+    dic=dic_starlit
+    target_obj=bpy.context.active_object
 
 else :
     print("Wrong input.")
@@ -107,13 +140,13 @@ print("The current armature has",len(target_obj.data.bones),"Bones")
 for single_bone in target_obj.data.bones:
     rename=""
     name_in=single_bone.name
-    
+
     if name_in not in dic.keys():
+        print("bone",name_in,"is not in dictionary")
         continue
     
     else:
         rename=dic[name_in]
-        print(name_in)
         target_obj.data.bones[name_in].name = rename
         print("bone",name_in,"has been renamed to",rename)
         
