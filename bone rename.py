@@ -3,7 +3,7 @@ import re
 import datetime
 print("=== Start at",datetime.datetime.now().strftime('%X'),"===")
 
-#1:CGSS 2:CGSS motion 3:SIFAS 4:starlit season motion
+#1:CGSS 2:CGSS motion 3:SIFAS 4:MLTD 5:starlit season motion
 dic_sel = 4
 
 dic_cgss = {
@@ -77,6 +77,40 @@ dic_sifas = {
 "RightHandPinky1":"右小指１","RightHandPinky2":"右小指２","RightHandPinky3":"右小指３",
 }
 
+dic_MLTD = {
+"BASE":"センター","AO_Base":"グルーブ","AO_Hips":"下半身",
+"MUNE":"上半身","MUNE2":"上半身2","KUBI":"首","ATAMA":"頭",
+
+"MOMO_L":"左足","HIZA_L":"左ひざ","ASHI_L":"左足首","TSUMASAKI_L":"左つま先",
+"MOMO_R":"右足","HIZA_R":"右ひざ","ASHI_R":"右足首","TSUMASAKI_R":"右つま先",
+
+"MOMO_RT_L__twist_x0":"左足",
+"HIZAKOZO_L__rot_HIZA_L__z50":"左ひざ",
+"ASHIKUBI_L__rot_ASHI_L__x100":"左ひざ",
+
+"MOMO_RT_L__twist_x0":"右足",
+"HIZAKOZO_R__rot_HIZA_R__z50":"右ひざ",
+"ASHIKUBI_R__rot_ASHI_R__x100":"右ひざ",
+
+"SAKOTSU_L":"左肩","KATA_L":"左腕","UDE_L":"左ひじ","TE_L":"左手首",
+"SAKOTSU_R":"右肩","KATA_R":"右腕","UDE_R":"右ひじ","TE_R":"右手首",
+
+"WAKI_L__slerp_KATA_L__i30_x0":"左肩","KATA_MD_L__twist_x50":"左腕","UDE_MD_L__rot_TE_L__x50":"左ひじ",
+
+"OYA3_R":"右親指０","OYA2_R":"右親指１","OYA1_R":"右親指２",
+"HITO3_R":"右人指１","HITO2_R":"右人指２","HITO1_R":"右人指３",
+"NAKA3_R":"右中指１","NAKA2_R":"右中指２","NAKA1_R":"右中指３",
+"KUSU3_R":"右薬指１","KUSU2_R":"右薬指２","KUSU1_R":"右薬指３",
+"KO3_R":"右小指１","KO2_R":"右小指２","KO1_R":"右小指３",
+
+"OYA3_L":"左親指０","OYA2_L":"左親指１","OYA1_L":"左親指２",
+"HITO3_L":"左人指１","HITO2_L":"左人指２","HITO1_L":"左人指３",
+"NAKA3_L":"左中指１","NAKA2_L":"左中指２","NAKA1_L":"左中指３",
+"KUSU3_L":"左薬指１","KUSU2_L":"左薬指２","KUSU1_L":"左薬指３",
+"KO3_L":"左小指１","KO2_L":"左小指２","KO1_L":"左小指３",
+
+}
+
 dic_starlit = {
 #"AO_Attach_L"
 #"AO_Attach_R"
@@ -105,22 +139,28 @@ dic_starlit = {
 "AS_Pinky1_L":"左小指１","AS_Pinky2_L":"左小指２","AS_Pinky3_L":"左小指３",
 }
 
-#CGSS部分
+#CGSS
 if dic_sel == 1 :
     dic=dic_cgss
     target_obj=bpy.context.active_object
 
-#CGSS动作部分
+#CGSS动作
 if dic_sel == 2 :
     dic=dic_cgss_mot
     target_obj=bpy.context.active_object
 
-#SIFAS部分
+#SIFAS
 if dic_sel == 3 :
     dic=dic_sifas
     target_obj=bpy.data.objects['Move']
 
-elif dic_sel == 4 :
+#MLTD
+if dic_sel == 4 :
+    dic=dic_cgss_mot
+    target_obj=bpy.context.active_object
+
+#星耀
+elif dic_sel == 5 :
     dic=dic_starlit
     target_obj=bpy.context.active_object
 
