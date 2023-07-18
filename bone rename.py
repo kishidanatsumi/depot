@@ -77,7 +77,7 @@ dic_sifas = {
 "RightHandPinky1":"右小指１","RightHandPinky2":"右小指２","RightHandPinky3":"右小指３",
 }
 
-dic_MLTD = {
+dic_mltd = {
 "BASE":"センター","AO_Base":"グルーブ","AO_Hips":"下半身",
 "MUNE":"上半身","MUNE2":"上半身2","KUBI":"首","ATAMA":"頭",
 
@@ -156,7 +156,7 @@ if dic_sel == 3 :
 
 #MLTD
 if dic_sel == 4 :
-    dic=dic_cgss_mot
+    dic=dic_mltd
     target_obj=bpy.context.active_object
 
 #星耀
