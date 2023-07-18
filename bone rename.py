@@ -78,24 +78,26 @@ dic_sifas = {
 }
 
 dic_mltd = {
-"BASE":"センター","AO_Base":"グルーブ","AO_Hips":"下半身",
-"MUNE":"上半身","MUNE2":"上半身2","KUBI":"首","ATAMA":"頭",
+"KOSHI":"下半身","MUNE1":"上半身","MUNE2":"上半身2","KUBI":"首","ATAMA":"頭",
 
 "MOMO_L":"左足","HIZA_L":"左ひざ","ASHI_L":"左足首","TSUMASAKI_L":"左つま先",
 "MOMO_R":"右足","HIZA_R":"右ひざ","ASHI_R":"右足首","TSUMASAKI_R":"右つま先",
 
-"MOMO_RT_L__twist_x0":"左足",
-"HIZAKOZO_L__rot_HIZA_L__z50":"左ひざ",
-"ASHIKUBI_L__rot_ASHI_L__x100":"左ひざ",
+"MOMO_RT_L__twist_x0":"左足x0",
+"MOMO_MD_L__twist_x50":"左足x50",
+"HIZAKOZO_L__rot_HIZA_L__z50":"左ひざx50",
+"ASHIKUBI_L__rot_ASHI_L__x100":"左ひざx100",
 
-"MOMO_RT_L__twist_x0":"右足",
-"HIZAKOZO_R__rot_HIZA_R__z50":"右ひざ",
-"ASHIKUBI_R__rot_ASHI_R__x100":"右ひざ",
+"MOMO_RT_R__twist_x0":"右足x0",
+"MOMO_MD_R__twist_x50":"右足x50",
+"HIZAKOZO_R__rot_HIZA_R__z50":"右ひざx50",
+"ASHIKUBI_R__rot_ASHI_R__x100":"右ひざx100",
 
 "SAKOTSU_L":"左肩","KATA_L":"左腕","UDE_L":"左ひじ","TE_L":"左手首",
 "SAKOTSU_R":"右肩","KATA_R":"右腕","UDE_R":"右ひじ","TE_R":"右手首",
 
-"WAKI_L__slerp_KATA_L__i30_x0":"左肩","KATA_MD_L__twist_x50":"左腕","UDE_MD_L__rot_TE_L__x50":"左ひじ",
+"WAKI_L__slerp_KATA_L__i30_x0":"左肩x0","KATA_RT_L__twist_x0":"左腕x0","KATA_MD_L__twist_x50":"左腕x50","UDE_MD_L__rot_TE_L__x50":"左ひじx50_2",
+"WAKI_R__slerp_KATA_R__i30_x0":"右肩x0","KATA_RT_R__twist_x0":"右腕x0","KATA_MD_R__twist_x50":"右腕x50","UDE_MD_R__rot_TE_R__x50":"右ひじx50_2",
 
 "OYA3_R":"右親指０","OYA2_R":"右親指１","OYA1_R":"右親指２",
 "HITO3_R":"右人指１","HITO2_R":"右人指２","HITO1_R":"右人指３",
@@ -157,7 +159,7 @@ if dic_sel == 3 :
 #MLTD
 if dic_sel == 4 :
     dic=dic_mltd
-    target_obj=bpy.data.objects['Move']
+    target_obj=bpy.data.objects['MODEL_00']
 
 #星耀
 elif dic_sel == 5 :
@@ -188,5 +190,5 @@ for single_bone in target_obj.data.bones:
         rename=dic[name_in]
         target_obj.data.bones[name_in].name = rename
         print("bone",name_in,"has been renamed to",rename)
-        
+
 print("=== Done. ===")
