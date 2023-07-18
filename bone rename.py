@@ -157,7 +157,7 @@ if dic_sel == 3 :
 #MLTD
 if dic_sel == 4 :
     dic=dic_mltd
-    target_obj=bpy.context.active_object
+    target_obj=bpy.data.objects['Move']
 
 #星耀
 elif dic_sel == 5 :
