@@ -55,8 +55,8 @@ dic_cgss_mot = {
 }
 
 dic_sifas = {
-"Position":"全ての親",
-"Hip":"下半身","Spine":"上半身0","Neck":"首","Head":"頭","Spine1":"上半身1","Spine2":"上半身2",
+"Hips_Position":"全ての親",
+"Hips":"下半身","Spine":"上半身0","Neck":"首","Head":"頭","Head_All":"頭","Spine1":"上半身1","Spine2":"上半身2",
 
 "LeftShoulder":"左肩","LeftArm":"左腕","LeftArmRoll":"左腕","LeftForeArm":"左ひじ","LeftForeArmRoll":"左ひじ","LeftHand":"左手首",
 "LeftUpLeg":"左足","LeftLeg":"左ひざ","LeftFoot":"左足首","LeftToeBase":"左つま先",
