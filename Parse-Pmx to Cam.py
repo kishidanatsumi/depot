@@ -1,4 +1,4 @@
-#Pmx to CAM
+#Pmx to CAM(使用前确保动作内只有一个骨骼)
 
 import sys
 import os
