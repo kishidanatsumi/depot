@@ -3,8 +3,8 @@ import re
 import datetime
 print("=== Start at",datetime.datetime.now().strftime('%X'),"===")
 
-#1:CGSS 2:CGSS motion 3:SIFAS 4:MLTD 5:starlit season motion
-dic_sel = 4
+#1:CGSS 2:CGSS motion 3:SIFAS 4:MLTD 5:SCSP 6:starlit season motion
+dic_sel = 5
 
 dic_cgss = {
 "Position":"全ての親",
@@ -110,8 +110,33 @@ dic_mltd = {
 "NAKA3_L":"左中指１","NAKA2_L":"左中指２","NAKA1_L":"左中指３",
 "KUSU3_L":"左薬指１","KUSU2_L":"左薬指２","KUSU1_L":"左薬指３",
 "KO3_L":"左小指１","KO2_L":"左小指２","KO1_L":"左小指３",
-
 }
+
+dic_scsp = {
+"root":"全ての親","Spine":"上半身","Spine1":"上半身1","Spine2":"上半身2","Neck":"首","Head":"頭",
+
+"LeftUpLeg":"左足","LeftLeg":"左ひざ","LeftFoot":"左足首","LeftToe":"左つま先",
+"RightUpLeg":"右足","RightLeg":"右ひざ","RightFoot":"右足首","RightToe":"右つま先",
+
+"LeftArm1_rot":"左腕1","LeftArm2_rot":"左腕2","LeftArm3_rot":"左腕3",
+"RightArm1_rot":"右腕1","RightArm2_rot":"右腕2","RightArm3_rot":"右腕3",
+
+"LeftShoulder":"左肩","LeftArm":"左腕","LeftForeArm":"左ひじ","LeftHand":"左手首",
+"RightShoulder":"右肩","RightArm":"右腕","RightForeArm":"右ひじ","RightHand":"右手首",
+
+"LeftHandThumb1":"左親指０","LeftHandThumb2":"左親指１","LeftHandThumb3":"左親指２",
+"LeftHandIndex1":"左人指１","LeftHandIndex2":"左人指２","LeftHandIndex3":"左人指３",
+"LeftHandMiddle1":"左中指１","LeftHandMiddle2":"左中指２","LeftHandMiddle3":"左中指３",
+"LeftHandRing1":"左薬指１","LeftHandRing1":"左薬指２","LeftHandRing1":"左薬指３",
+"LeftHandPinky1":"左小指１","LeftHandPinky2":"左小指２","LeftHandPinky3":"左小指３",
+
+"RightHandThumb1":"右親指０","RightHandThumb2":"右親指１","RightHandThumb3":"右親指２",
+"RightHandIndex1":"右人指１","RightHandIndex2":"右人指２","RightHandIndex3":"右人指３",
+"RightHandMiddle1":"右中指１","RightHandMiddle2":"右中指２","RightHandMiddle3":"右中指３",
+"RightHandRing1":"右薬指１","RightHandRing1":"右薬指２","RightHandRing1":"右薬指３",
+"RightHandPinky1":"右小指１","RightHandPinky2":"右小指２","RightHandPinky3":"右小指３",
+}
+
 
 dic_starlit = {
 #"AO_Attach_L"
@@ -161,8 +186,13 @@ if dic_sel == 4 :
     dic=dic_mltd
     target_obj=bpy.data.objects['MODEL_00']
 
+#SCSP
+if dic_sel == 4 :
+    dic=dic_mltd
+    target_obj=bpy.data.objects['root']
+
 #星耀
-elif dic_sel == 5 :
+elif dic_sel == 6 :
     dic=dic_starlit
     target_obj=bpy.context.active_object
 
