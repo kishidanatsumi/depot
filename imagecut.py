@@ -4,13 +4,16 @@ import os
 import sys
 
 #分割尺寸
-cut_width = 64
+cut_width = 128
 cut_length = 128
 #将原图沿横向扩展X倍
-resize_factor = 2
+resize_factor = 1
+#是否按行反向
+reverse = 1
 
 #读入拖入的文件
 pic_path = sys.argv[1]
+#pic_path = 'vj_star.png'
 #pic_path = pic_path.replace("\\", "/")
 
 pic_name = os.path.basename(pic_path)
@@ -40,11 +43,19 @@ if resize_factor != 1 :
  cut_length = cut_length*resize_factor
  cut_width = cut_width*resize_factor
 
-#循环生成图片
-for i in range(0, num_width):
-    for j in range(0, num_length):
-        pic_out = pic_in[i*cut_width : (i+1)*cut_width, j*cut_length : (j+1)*cut_length, :]
-        result_path = pic_target + "/" + '{}_{}_{}.jpg'.format(pic_name,num_width-i-1, j+1)
-        cv2.imwrite(result_path, pic_out)
 
+#循环生成图片
+if reverse == 1 :
+    for i in range(0, num_width):
+        for j in range(0, num_length):
+            pic_out = pic_in[i*cut_width : (i+1)*cut_width, j*cut_length : (j+1)*cut_length, :]
+            result_path = pic_target + "/" + '{}_{}_{}.jpg'.format(pic_name,num_width-i-1, num_length-j)
+            cv2.imwrite(result_path, pic_out)
+else:
+    for i in range(0, num_width):
+        for j in range(0, num_length):
+            pic_out = pic_in[i*cut_width : (i+1)*cut_width, j*cut_length : (j+1)*cut_length, :]
+            result_path = pic_target + "/" + '{}_{}_{}.jpg'.format(pic_name,num_width-i-1, j+1)
+            cv2.imwrite(result_path, pic_out)
+            
 print("Done")
