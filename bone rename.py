@@ -150,6 +150,7 @@ dic_starlit = {
 
 "AO_Shoulder_L":"左肩","AO_Arm_L":"左腕","AO_ForeArm_L":"左ひじ","AS_Hand_L":"左手首",
 "AO_Shoulder_R":"右肩","AO_Arm_R":"右腕","AO_ForeArm_R":"右ひじ","AS_Hand_R":"右手首",
+"CS_Shoulder_L":"左肩1","CS_Shoulder_R":"右肩1",
 
 "AS_Thumb1_R":"右親指０","AS_Thumb2_R":"右親指１","AS_Thumb3_R":"右親指２",
 "AS_Index1_R":"右人指１","AS_Index2_R":"右人指２","AS_Index3_R":"右人指３",
