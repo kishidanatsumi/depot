@@ -6,10 +6,13 @@ import sys
 #分割尺寸
 cut_width = 128
 cut_length = 128
+
 #将原图沿横向扩展X倍
 resize_factor = 1
-#是否按行反向
-reverse = 1
+
+#是否按行列反向
+reverse_x = 0
+reverse_y = 1
 
 #读入拖入的文件
 pic_path = sys.argv[1]
@@ -45,17 +48,24 @@ if resize_factor != 1 :
 
 
 #循环生成图片
-if reverse == 1 :
+if reverse_x == 1 :
     for i in range(0, num_width):
         for j in range(0, num_length):
             pic_out = pic_in[i*cut_width : (i+1)*cut_width, j*cut_length : (j+1)*cut_length, :]
             result_path = pic_target + "/" + '{}_{}_{}.jpg'.format(pic_name,num_width-i-1, num_length-j)
             cv2.imwrite(result_path, pic_out)
-else:
+            
+elif reverse_y == 1:
+    for i in range(0, num_width):
+        for j in range(0, num_length):
+            pic_out = pic_in[i*cut_width : (i+1)*cut_width, j*cut_length : (j+1)*cut_length, :]
+            result_path = pic_target + "/" + '{}_{}_{}.jpg'.format(pic_name,i, j+1)
+            cv2.imwrite(result_path, pic_out)
+
+else :
     for i in range(0, num_width):
         for j in range(0, num_length):
             pic_out = pic_in[i*cut_width : (i+1)*cut_width, j*cut_length : (j+1)*cut_length, :]
             result_path = pic_target + "/" + '{}_{}_{}.jpg'.format(pic_name,num_width-i-1, j+1)
-            cv2.imwrite(result_path, pic_out)
-            
+            cv2.imwrite(result_path, pic_out)          
 print("Done")
