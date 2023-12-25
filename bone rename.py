@@ -188,8 +188,8 @@ if dic_sel == 4 :
     target_obj=bpy.data.objects['MODEL_00']
 
 #SCSP
-if dic_sel == 4 :
-    dic=dic_mltd
+if dic_sel == 5 :
+    dic=dic_scsp
     target_obj=bpy.data.objects['root']
 
 #星耀
