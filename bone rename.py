@@ -28,7 +28,6 @@ dic_cgss = {
 "Ring_01_R":"右薬指１","Ring_02_R":"右薬指２","Ring_03_R":"右薬指３",
 "Pinky_01_R":"右小指１","Pinky_02_R":"右小指２","Pinky_03_R":"右小指３",
 
-"Eye_L":"左目","Eye_R":"右目"
 }
 
 dic_cgss_mot = {
