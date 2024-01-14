@@ -126,13 +126,13 @@ dic_scsp = {
 "LeftHandThumb1":"左親指０","LeftHandThumb2":"左親指１","LeftHandThumb3":"左親指２",
 "LeftHandIndex1":"左人指１","LeftHandIndex2":"左人指２","LeftHandIndex3":"左人指３",
 "LeftHandMiddle1":"左中指１","LeftHandMiddle2":"左中指２","LeftHandMiddle3":"左中指３",
-"LeftHandRing1":"左薬指１","LeftHandRing1":"左薬指２","LeftHandRing1":"左薬指３",
+"LeftHandRing1":"左薬指１","LeftHandRing1":"左薬指２","LeftHandRing3":"左薬指３",
 "LeftHandPinky1":"左小指１","LeftHandPinky2":"左小指２","LeftHandPinky3":"左小指３",
 
 "RightHandThumb1":"右親指０","RightHandThumb2":"右親指１","RightHandThumb3":"右親指２",
 "RightHandIndex1":"右人指１","RightHandIndex2":"右人指２","RightHandIndex3":"右人指３",
 "RightHandMiddle1":"右中指１","RightHandMiddle2":"右中指２","RightHandMiddle3":"右中指３",
-"RightHandRing1":"右薬指１","RightHandRing1":"右薬指２","RightHandRing1":"右薬指３",
+"RightHandRing1":"右薬指１","RightHandRing1":"右薬指２","RightHandRing3":"右薬指３",
 "RightHandPinky1":"右小指１","RightHandPinky2":"右小指２","RightHandPinky3":"右小指３",
 }
 
