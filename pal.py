@@ -15,7 +15,7 @@ if (re.search(r".*Mouth.*", pic_path)):
 else:
     cut_width = width // 2
     cut_height = height // 4
-    out_name = "Eyes"
+    out_name = "Eye"
     out_num = 8
 
 quadrants = [
