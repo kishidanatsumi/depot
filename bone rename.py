@@ -98,6 +98,9 @@ dic_mltd = {
 "WAKI_L__slerp_KATA_L__i30_x0":"左肩x0","KATA_RT_L__twist_x0":"左腕x0","KATA_MD_L__twist_x50":"左腕x50","UDE_MD_L__rot_TE_L__x50":"左ひじx50_2",
 "WAKI_R__slerp_KATA_R__i30_x0":"右肩x0","KATA_RT_R__twist_x0":"右腕x0","KATA_MD_R__twist_x50":"右腕x50","UDE_MD_R__rot_TE_R__x50":"右ひじx50_2",
 
+"HIJI_R__rot_UDE_R__z50":"右ひじ_rot",
+"HIJI_L__rot_UDE_R__z50":"左ひじ_rot",
+
 "OYA3_R":"右親指０","OYA2_R":"右親指１","OYA1_R":"右親指２",
 "HITO3_R":"右人指１","HITO2_R":"右人指２","HITO1_R":"右人指３",
 "NAKA3_R":"右中指１","NAKA2_R":"右中指２","NAKA1_R":"右中指３",
