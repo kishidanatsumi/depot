@@ -3,7 +3,7 @@ import re
 import datetime
 print("=== Start at",datetime.datetime.now().strftime('%X'),"===")
 
-#1:CGSS 2:CGSS motion 3:SIFAS 4:MLTD 5:SCSP 6:starlit season motion
+#1:CGSS 2:CGSS motion 3:SIFAS 4:MLTD 5:SCSP 6:SCSP motion 7:starlit season motion
 dic_sel = 5
 
 dic_cgss = {
@@ -199,7 +199,6 @@ if dic_sel == 1 :
     dic=dic_cgss
     target_obj=bpy.context.active_object
 
-#CGSS动作
 if dic_sel == 2 :
     dic=dic_cgss_mot
     target_obj=bpy.context.active_object
@@ -219,8 +218,12 @@ if dic_sel == 5 :
     dic=dic_scsp
     target_obj=bpy.data.objects['root']
 
+if dic_sel == 6 :
+    dic=dic_scsp_mot
+    target_obj=bpy.data.objects['root']
+
 #星耀
-elif dic_sel == 6 :
+elif dic_sel == 7 :
     dic=dic_starlit
     target_obj=bpy.context.active_object
 
