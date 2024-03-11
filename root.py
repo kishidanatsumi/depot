@@ -39,7 +39,7 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
     outfile.write('boneframe_ct:,'+str(len(time_x))+'\n')
     outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
     while (i < len(time_x)):
-        outfile.write('センター,'+str(i)+','+str(-(array_x[i])*10)+',0.0,'+str(array_z[i]*10)+',0.0,0.0,0.0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+        outfile.write('センター,'+str(i)+','+str(-(array_x[i])*12)+',0.0,'+str(-(array_z[i])*12)+',0.0,0.0,0.0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
         i=i+1
     outfile.write('morphframe_ct:,0\n')
     outfile.write('camframe_ct:,0\n')
