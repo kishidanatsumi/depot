@@ -140,7 +140,7 @@ dic_scsp = {
 }
 
 dic_scsp_mot = {
-"Hips":"グループ","Spine":"上半身","Spine1":"上半身1","Spine2":"上半身2","Neck":"首","Head":"頭",
+"Hips":"グルーブ","Spine":"上半身","Spine1":"上半身1","Spine2":"上半身2","Neck":"首","Head":"頭",
 
 "LeftUpLeg":"左足","LeftLeg":"左ひざ","LeftFoot":"左足首","LeftToe":"左つま先",
 "RightUpLeg":"右足","RightLeg":"右ひざ","RightFoot":"右足首","RightToe":"右つま先",
