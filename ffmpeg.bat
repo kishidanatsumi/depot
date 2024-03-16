@@ -21,4 +21,4 @@ pause
 ::ffmpeg -i 3.2.mp4 -preset veryfast -vf "scale=500:720,pad=1280:720:360:0:black" -af "volume=2" output/3.2.mp4
 
 ::m2v转换
-::ffmpeg -i ./monitor_005_40534656.m2v -c:v copy -c:a aac -map 0:v:0  output.mp4
+::ffmpeg -i ./monitor_005_40534656.m2v -c:v libx264 -c:a aac -map 0:v:0  output.mp4
