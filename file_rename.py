@@ -9,7 +9,8 @@ def file_rename():
         if re.search(name,file):
             ret=re.search(name,file)
             new_filename = file.replace(str(ret.group()),"")
+            os.rename(file, new_filename)
             print(file,"has been renamed to",new_filename)
-            #os.rename(file, new_filename)
             
 file_rename()
+
