@@ -5,7 +5,7 @@ import os
 import csv
 
 #读入拖入的文件
-input_path=sys.argv[1]
+input_path="cam.txt"
 #以"out_输入文件"格式输出txt
 output_name="out_"+os.path.basename(input_path)
 
@@ -18,14 +18,14 @@ with open(input_path, "r", encoding='utf-8') as input_file:
 #去头去尾
     input_data = input_data[4:-5]
 #提取需要的列数
-    output_data = [[row[i] for i in [1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]] for row in input_data]
+    output_data = [[row[i] for i in [1,2,3,4,5,6,7,9,10,11]] for row in input_data]
 
 #提出有多少帧
     rows = len(output_data) 
 
 #构造每帧内容
 for i in range(len(output_data)):
-     output_data[i] = output_data[i][:1] + ['0'] + output_data[i][1:7] + ['30'] + ['False'] + output_data[i][7:] + ['20'] + ['20'] + ['107'] + ['107']+ ['20'] + ['20'] + ['107'] + ['107']
+     output_data[i] = output_data[i][:1] + ['0'] + output_data[i][1:7] + ['30'] + ['False'] + ['20'] + ['20'] + ['107'] + ['107']+ ['20'] + ['20'] + ['107'] + ['107'] + ['20'] + ['20'] + ['107'] + ['107']+ ['20'] + ['20'] + ['107'] + ['107'] + ['20'] + ['20'] + ['107'] + ['107']+ ['20'] + ['20'] + ['107'] + ['107']
 
 with open(output_name, "w", newline='', encoding='utf-8') as output_file:
 #写入头尾
