@@ -1,8 +1,16 @@
 import json
 import sys
+import re
 
 input_json = sys.argv[1]
+if not re.search("\.json$",input_json):
+    print ('Input is not json file')
+    input()
+    exit
+else:
+    input_name=input_json.replace(".json","")
 
+    
 #输入json记录表情的项，提取每项的帧
 def takeSecond(elem):
     return elem["frame"]
@@ -100,7 +108,8 @@ with open(input_json, 'r') as f:
     a = f.read()
 b = json.loads(a)
 
-f = open('cgss.txt', 'w', encoding='utf-8')
+
+
 
 motion_id = int(input("请输入要提取的表情编号(从1开始):"))
 
@@ -109,12 +118,15 @@ if motion_id == 1:
 else:
     dataset = b["other4FacialArray"][motion_id-2]    
 
-#口型
-
-         
+#口型        
 lipsync = dataset["mouthKeys"]["thisList"]
 for i in range(len(lipsync)):
     lipsync[i]['vowel'] = lipsync[i]['mouthFlag']
+
+#打开输出文件
+output_file = input_name+"_"+str(motion_id)+".txt"
+print(output_file)
+f = open(output_file, 'w', encoding='utf-8')
 
 #注释掉的是Json中Lipsync处的表情，结果不是很理想所以注释掉了，也许哪天兴致来了会处理
 
@@ -267,9 +279,9 @@ for i in range(len(eyesync)):
 #保存关闭
 f.close()
 #先压缩，把重复的加起来
-compress('cgss.txt')
+compress(output_file)
 #转30帧
-to30('cgss.txt')
+to30(output_file)
 #转到那个工具可以变到vmd的形式
-makefile('cgss.txt')
+makefile(output_file)
 
