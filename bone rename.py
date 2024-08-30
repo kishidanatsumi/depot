@@ -124,7 +124,7 @@ dic_scsp = {
 "RightArm1_rot":"右腕1","RightArm2_rot":"右腕2","RightArm3_rot":"右腕3",
 
 "LeftShoulder":"左肩","LeftShoulder_rot":"左肩","LeftArm":"左腕","LeftForeArm":"左ひじ","LeftForeArm_rot":"左ひじ1","LeftHand":"左手首",
-"RightShoulder":"右肩","RightShoulder_rot":"右肩"，"RightArm":"右腕","RightForeArm":"右ひじ","RightForeArm_rot":"右ひじ1","RightHand":"右手首",
+"RightShoulder":"右肩","RightShoulder_rot":"右肩","RightArm":"右腕","RightForeArm":"右ひじ","RightForeArm_rot":"右ひじ1","RightHand":"右手首",
 
 "LeftHandThumb1":"左親指０","LeftHandThumb2":"左親指１","LeftHandThumb3":"左親指２",
 "LeftHandIndex1":"左人指１","LeftHandIndex2":"左人指２","LeftHandIndex3":"左人指３",
