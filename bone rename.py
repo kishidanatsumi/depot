@@ -206,27 +206,32 @@ if dic_sel == 2 :
 #SIFAS
 if dic_sel == 3 :
     dic=dic_sifas
-    target_obj=bpy.data.objects['Move']
+#    target_obj=bpy.data.objects['Move']
+    target_obj=bpy.context.active_object
 
 #MLTD
 if dic_sel == 4 :
     dic=dic_mltd
-    target_obj=bpy.data.objects['MODEL_00']
-
+#    target_obj=bpy.data.objects['MODEL_00']
+    target_obj=bpy.context.active_object
+    
 #SCSP
 if dic_sel == 5 :
     dic=dic_scsp
-    target_obj=bpy.data.objects['root']
-
+#    target_obj=bpy.data.objects['root']
+    target_obj=bpy.context.active_object
+    
 if dic_sel == 6 :
     dic=dic_scsp_mot
-    target_obj=bpy.data.objects['root']
-
+#    target_obj=bpy.data.objects['root']
+    target_obj=bpy.context.active_object
+    
 #星耀
 elif dic_sel == 7 :
     dic=dic_starlit
+#    target_obj=bpy.context.active_object
     target_obj=bpy.context.active_object
-
+    
 else :
     print("Wrong input.")
     exit
