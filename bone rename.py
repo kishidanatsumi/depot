@@ -55,7 +55,7 @@ dic_cgss_mot = {
 
 dic_uma = {
 "Position":"全ての親",
-"Root":"上半身0","Neck":"首","Head":"頭","Waist":"上半身1","Chest":"上半身2",
+"Waist":"上半身","Neck":"首","Head":"頭","Spine":"上半身1","Chest":"上半身2",
 
 "Shoulder_L":"左肩","Arm_L":"左腕","Elbow_L":"左ひじ","Wrist_L":"左手首",
 "Thigh_L":"左足","Knee_L":"左ひざ","Ankle_L":"左足首","Toe_L":"左つま先",
@@ -74,7 +74,6 @@ dic_uma = {
 "Middle_01_R":"右中指１","Middle_02_R":"右中指２","Middle_03_R":"右中指３",
 "Ring_01_R":"右薬指１","Ring_02_R":"右薬指２","Ring_03_R":"右薬指３",
 "Pinky_01_R":"右小指１","Pinky_02_R":"右小指２","Pinky_03_R":"右小指３",
-
 }
 
 dic_sifas = {
