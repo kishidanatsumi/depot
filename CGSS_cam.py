@@ -26,6 +26,13 @@ for i in range(0,len(pos_frame)):
     else:
         for j in range(pointer,len(lkat_frame)):
             if (pos_frame[i] >= lkat_frame[pointer]) and(pos_frame[i] < lkat_frame[j+1]):
+                #补齐线性增量
+                dx=(lkat_offset[j]['x']-lkat_offset[j+1]['x'])*(pos_frame[i]-lkat_frame[j]+1)/(lkat_frame[j+1]-lkat_frame[j])
+                dy=lkat_offset[j]['y']-lkat_offset[j+1]['y']
+                dz=lkat_offset[j]['z']-lkat_offset[j+1]['z']
+                x=math.degrees(math.atan(dx/dz))
+                y=math.degrees(math.atan(dy/dz))
+                z=math.degrees(math.atan(dy/dx))
                 print("Pos",i,":",pos_frame[i]," is between",lkat_frame[j],"and",lkat_frame[j+1])
                 break
             pointer=pointer+1
