@@ -37,13 +37,28 @@ dic_mltd = {
 }
 
 dic_fix = {
+"BASE":[0.0,90.0,0.0],"KOSHI":[0.0,0.0,90.0],"MOMO_L":[0.0,0.0,0.0],"HIZA_L":[0.0,0.0,0.0],"ASHI_L":[0.0,0.0,0.0],"TSUMASAKI_L":[0.0,0.0,90.0],
+"MOMO_R":[0.0,0.0,0.0],"HIZA_R":[0.0,0.0,0.0],"ASHI_R":[0.0,0.0,0.0],"TSUMASAKI_R":[0.0,0.0,90.0],
+"MUNE1":[0.0,0.0,-90.0],"MUNE2":[0.0,0.0,0.0],"KUBI":[0.0,0.0,0.0],"ATAMA":[90.0,0.0,-90.0],
+"SAKOTSU_L":[-90.0,-90.0,0.0],"KATA_L":[-90.0,0.0,0.0],"UDE_L":[0.0,0.0,0.0],"TE_L":[90.0,0.0,0.0],
+"HITO3_L":[0.0,0.0,0.0],"HITO2_L":[0.0,0.0,0.0],"HITO1_L":[0.0,0.0,0.0],"KUKO_L":[0.0,0.0,0.0],
+"KO3_L":[0.0,0.0,0.0],"KO2_L":[0.0,0.0,0.0],"KO1_L":[0.0,0.0,0.0],
+"KUSU3_L":[0.0,0.0,0.0],"KUSU2_L":[0.0,0.0,0.0],"KUSU1_L":[0.0,0.0,0.0],
+"NAKA3_L":[0.0,0.0,0.0],"NAKA2_L":[0.0,0.0,0.0],"NAKA1_L":[0.0,0.0,0.0],
+"OYA3_L":[-105.0,-40.40399932861328,20.00699806213379],"OYA2_L":[0.0,0.0,0.0],"OYA1_L":[0.0,0.0,0.0],
+"SAKOTSU_R":[-90.0,90.0,0.0],"KATA_R":[-90.0,0.0,0.0],"UDE_R":[0.0,0.0,0.0],"TE_R":[90.0,0.0,0.0],
+"HITO3_R":[0.0,0.0,0.0],"HITO2_R":[0.0,0.0,0.0],"HITO1_R":[0.0,0.0,0.0],"KUKO_R":[0.0,0.0,0.0],
+"KO3_R":[0.0,0.0,0.0],"KO2_R":[0.0,0.0,0.0],"KO1_R":[0.0,0.0,0.0],
+"KUSU3_R":[0.0,0.0,0.0],"KUSU2_R":[0.0,0.0,0.0],"KUSU1_R":[0.0,0.0,0.0],
+"NAKA3_R":[0.0,0.0,0.0],"NAKA2_R":[0.0,0.0,0.0],"NAKA1_R":[0.0,0.0,0.0],
+"OYA3_R":[-74.99993133544922,-40.40384292602539,-20.007532119750978],"OYA2_R":[0.0,0.0,0.0],"OYA1_R":[0.0,0.0,0.0]
 }
 
 
 global frame_len
 global high_fps
 high_fps=0
-export_csv=1
+export_csv=0
 
 def gen_list(key_type,value,rate=1,angle=0):
         frame_list=[]
@@ -89,7 +104,6 @@ def gen_list(key_type,value,rate=1,angle=0):
                         exit(1)
                 frame_list= [round(x*rate+angle,4) for x in value]
 
-
         #print("Return list length:",len(frame_list),", Min Value:",min(frame_list)," Max Value:",max(frame_list))
         return frame_list
 
@@ -97,8 +111,9 @@ def gen_list(key_type,value,rate=1,angle=0):
 def data_init(dic,frame_len):
         frame_data= [['foo',[0]*frame_len,[0]*frame_len,[0]*frame_len,[0]*frame_len,[0]*frame_len,[0]*frame_len] for i in range(len(dic))]
         i=0
-        for t in dic:
-                frame_data[i][0]=dic_mltd.get(t)
+        for bone_name in dic:
+                #frame_data[i][0]=dic_mltd.get(t)
+                frame_data[i][0]=bone_name
                 i=i+1
         return frame_data
 
@@ -129,7 +144,7 @@ for block in curves:
         value=block["values"]
 
         if (path[0] in dic_mltd):
-                print("Path:",path[0],"| Map:",dic_mltd.get(path[0]),"| Property Type:",prop_type[0],"| Key type:",key_type[0],"| Value:",len(value))
+                #print("Path:",path[0],"| Map:",dic_mltd.get(path[0]),"| Property Type:",prop_type[0],"| Key type:",key_type[0],"| Value:",len(value))
                 
 
                 if ( str(path[0]+'_'+prop_type[0]) in dic_fix ):
@@ -139,7 +154,8 @@ for block in curves:
                         
                             
                 for index,array_value in enumerate(frame_data):
-                            if ( dic_mltd.get(path[0]) == frame_data[index][0]):
+                            #if ( dic_mltd.get(path[0]) == frame_data[index][0]):
+                            if ( frame_data[index][0] in dic_mltd ):
                                     if ( prop_type[0] == "AngleX" ):
                                             #print("Insert AngleX data for bone",dic_mltd.get(path[0]))
                                             frame_data[index][1]=gen_list(key_type,value,1,angle)
@@ -223,5 +239,5 @@ if ( export_csv == 1 ):
                         writer.writerow([path[0],prop_type[0],key_type[0]] + csv_value)
         print("Output:",os.path.basename(input_json)+".csv")
         print("==== End output csv ====")
-
-
+        
+print("==== End converting ====")
