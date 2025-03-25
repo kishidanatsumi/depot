@@ -37,7 +37,7 @@ dic_mltd = {
 }
 
 dic_fix = {
-"BASE":[0.0,90.0,0.0],"KOSHI":[0.0,0.0,90.0],"MOMO_L":[0.0,0.0,0.0],"HIZA_L":[0.0,0.0,0.0],"ASHI_L":[0.0,0.0,0.0],"TSUMASAKI_L":[0.0,0.0,90.0],
+"MODEL_00":[0.0,0.0,0.0],"BASE":[0.0,90.0,0.0],"KOSHI":[0.0,0.0,90.0],"MOMO_L":[0.0,0.0,0.0],"HIZA_L":[0.0,0.0,0.0],"ASHI_L":[0.0,0.0,0.0],"TSUMASAKI_L":[0.0,0.0,90.0],
 "MOMO_R":[0.0,0.0,0.0],"HIZA_R":[0.0,0.0,0.0],"ASHI_R":[0.0,0.0,0.0],"TSUMASAKI_R":[0.0,0.0,90.0],
 "MUNE1":[0.0,0.0,-90.0],"MUNE2":[0.0,0.0,0.0],"KUBI":[0.0,0.0,0.0],"ATAMA":[90.0,0.0,-90.0],
 "SAKOTSU_L":[-90.0,-90.0,0.0],"KATA_L":[-90.0,0.0,0.0],"UDE_L":[0.0,0.0,0.0],"TE_L":[90.0,0.0,0.0],
@@ -55,11 +55,12 @@ dic_fix = {
 }
 
 
+
+
 global frame_len
 global high_fps
 high_fps=0
 export_csv=0
-
 def gen_list(key_type,value,rate=1,angle=0):
         frame_list=[]
         #Discrete
@@ -193,6 +194,7 @@ print("==== Start converting ====")
 #        if ( frame_data[index][0] == "グルーブ" ):
 #                print(frame_data[index][5])
 
+#[名字,[x旋转],[y旋转],[z旋转],[x位移],[y位移],[z位移]]
 with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
         outfile.write('version:,2\n')
         outfile.write('modelname:,foobar\n')
