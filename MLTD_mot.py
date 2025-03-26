@@ -8,7 +8,7 @@ from scipy.spatial.transform import Rotation as rot
 import math
 
 #input_json = sys.argv[1]
-input_json='./dan_cmfeel_01_dan.imo.asset.json'
+input_json='./dan_ratata_01_dan.imo.asset.json'
 infile=open(input_json)
 
 
@@ -291,13 +291,13 @@ for block in curves:
                                             frame_data[index][3]=gen_list(key_type,value,1)
                                             break
                                     if ( prop_type[0] == "PositionX" ):
-                                            frame_data[index][4]=gen_list(key_type,value,10)
+                                            frame_data[index][4]=gen_list(key_type,value,-10)
                                             break
                                     if ( prop_type[0] == "PositionY" ):
                                             frame_data[index][5]=gen_list(key_type,value,10)
                                             break
                                     if ( prop_type[0] == "PositionZ" ):
-                                            frame_data[index][6]=gen_list(key_type,value,10)
+                                            frame_data[index][6]=gen_list(key_type,value,-10)
                                             break
                                     index=index+1
 
@@ -328,16 +328,14 @@ for frame in frame_data:
 
                 out_rot=[]
                 out_pos=[]
-                if ( high_fps == 1 ):
-                        out_len=frame_len
-                else:
-                        out_len=int(frame_len/2)
-                        
-                for i in range(0,out_len):
+                for i in range(0,frame_len):
                         target_pose=axis*unity_rot([frame[1][i],frame[2][i],frame[3][i]])
                         x_rot,y_rot,z_rot=quaternion_to_euler(target_pose*origin_pose.inv())
                         out_rot.append([x_rot,y_rot,z_rot])
-                        out_pos.append([frame[4][i],frame[5][i],frame[6][i]])
+                        if ( frame[0] == "BASE"):
+                               out_pos.append([frame[4][i],frame[5][i]-8.73,frame[6][i]])
+                        else:
+                               out_pos.append([frame[4][i],frame[5][i],frame[6][i]])
                 if not (frame[0] in dic_mltd):
                         print("Warning:",frame[0],"is not listed in dic_mltd")
 
@@ -353,9 +351,15 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
         outfile.write('modelname:,foobar\n')
         outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len/2))+'\n')
         outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
-        for frame in out_data:
-                for i in range(0,out_len):
-                        outfile.write(str(frame[0])+','+str(i)+','+str(frame[2][i][0])+','+str(frame[2][i][1])+','+str(frame[2][i][2])+','+str(frame[1][i][0])+','+str(frame[1][i][1])+','+str(frame[1][i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+        if ( high_fps == 1 ):
+               for frame in out_data:
+                      for i in range(0,frame_len):
+                             outfile.write(str(frame[0])+','+str(i)+','+str(frame[2][i][0])+','+str(frame[2][i][1])+','+str(frame[2][i][2])+','+str(frame[1][i][0])+','+str(frame[1][i][1])+','+str(frame[1][i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+
+        else:
+               for frame in out_data:
+                      for i in range(0,int(frame_len/2)):
+                             outfile.write(str(frame[0])+','+str(i)+','+str(frame[2][2*i][0])+','+str(frame[2][2*i][1])+','+str(frame[2][2*i][2])+','+str(frame[1][2*i][0])+','+str(frame[1][2*i][1])+','+str(frame[1][2*i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
 
         outfile.write('morphframe_ct:,0\n')
         outfile.write('camframe_ct:,0\n')
