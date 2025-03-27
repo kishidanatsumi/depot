@@ -121,19 +121,16 @@ global high_fps
 high_fps=0
 export_csv=0
 
-def mmd_rot(in_eular):
-       in_quat=rot.from_euler('zyx',in_eular,degrees=True).as_quat()
-       #print(in_quat)
-       x=float(-in_quat[0])
-       y=float(-in_quat[1])
-       z=float(-in_quat[2])
-       w=float(in_quat[3])
-       return rot.from_quat([z,y,x,w])
+def mmd_rot(in_euler):
+    x,y,z=in_euler
+    quat=rot.from_euler('zyx',[z,y,x],degrees=True).as_quat()
+    #unity转mmd轴：X取反，Z取反
+    return rot.from_quat([-quat[0],quat[1],-quat[2],quat[3]])
 
 def unity_rot(in_euler):
     x,y,z=in_euler
     quat=rot.from_euler('zxy',[z,x,y],degrees=True).as_quat()
-    #Unity转mmd轴：X取反，Z取反
+    #unity转mmd轴：X取反，Z取反
     return rot.from_quat([-quat[0],quat[1],-quat[2],quat[3]])
 
 #从PMX-VMD-Scripting-Tools扒下来的，可以将MMD的四元数转为MMD的欧拉角
