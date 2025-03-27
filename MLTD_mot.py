@@ -132,12 +132,9 @@ def mmd_rot(in_eular):
 
 def unity_rot(in_euler):
     x,y,z=in_euler
-    quat1=rot.from_euler('xyz',[-x,y,z],degrees=True).as_quat()
-    quat2=rot.from_euler('xyz',[x,-y,-z],degrees=True).as_quat()
-    out=[quat1[0],quat1[1],quat2[2],quat2[3]]
-
-    return rot.from_quat(out)
-
+    quat=rot.from_euler('zxy',[z,x,y],degrees=True).as_quat()
+    #Unity转mmd轴：X取反，Z取反
+    return rot.from_quat([-quat[0],quat[1],-quat[2],quat[3]])
 
 #从PMX-VMD-Scripting-Tools扒下来的，可以将MMD的四元数转为MMD的欧拉角
 def quaternion_to_euler(in_rot):
