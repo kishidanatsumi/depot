@@ -185,6 +185,10 @@ def quaternion_to_euler(in_rot):
 	
 	return [round(mmd_x,4), round(mmd_y,4), round(mmd_z,4)]
 
+def quaternion_to_euler(in_rot):
+    z,x,y=in_rot.as_euler('zxy',degrees=True)
+	#还需要修正
+    return [-round(x,4), -round(y,4), round(z,4)]
 
 #构造
 #传入格式[key type,全frame，对位移是否缩放]
