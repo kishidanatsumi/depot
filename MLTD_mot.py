@@ -8,7 +8,7 @@ from scipy.spatial.transform import Rotation as rot
 import math
 
 #input_json = sys.argv[1]
-input_json='./dan_ratata_01_dan.imo.asset.json'
+input_json='./dan_cmfeel_01_dan.imo.asset.json'
 infile=open(input_json)
 
 
@@ -123,9 +123,7 @@ export_csv=0
 
 def mmd_rot(in_euler):
     x,y,z=in_euler
-    quat=rot.from_euler('zyx',[z,y,x],degrees=True).as_quat()
-    #unity转mmd轴：X取反，Z取反
-    return rot.from_quat([-quat[0],quat[1],-quat[2],quat[3]])
+    return rot.from_euler('xyz',[-x,-y,-z],degrees=True)
 
 def unity_rot(in_euler):
     x,y,z=in_euler
@@ -134,61 +132,11 @@ def unity_rot(in_euler):
     return rot.from_quat([-quat[0],quat[1],-quat[2],quat[3]])
 
 #从PMX-VMD-Scripting-Tools扒下来的，可以将MMD的四元数转为MMD的欧拉角
-def quaternion_to_euler(in_rot):
-	"""
-	Convert WXYZ quaternion to XYZ euler angles, using the same method as MikuMikuDance.
-	Massive thanks and credit to "Isometric" for helping me discover the transformation method used in mmd!!!!
-	
-	:param quat: 4x float, W X Y Z quaternion
-	:return: 3x float, X Y Z angle in degrees
-	"""
-	quat=in_rot.as_quat()
-	x=quat[0]
-	y=quat[1]
-	z=quat[2]
-	w=quat[3]
-	# pitch (y-axis rotation)
-	sinx_cosy = 2 * ((w * y) + (x * z))
-	cosx_cosy = 1 - (2 * ((x ** 2) + (y ** 2)))
-	mmd_y = -math.atan2(sinx_cosy, cosx_cosy)
-	
-	# yaw (z-axis rotation)
-	sinz_cosy = 2 * ((-w * z) - (x * y))
-	cosz_cosy = 1 - (2 * ((x ** 2) + (z ** 2)))
-	mmd_z = math.atan2(sinz_cosy, cosz_cosy)
-	
-	# roll (x-axis rotation)
-	siny = 2 * ((z * y) - (w * x))
-	if (siny >= 1.0):
-		mmd_x = -math.pi / 2  # use 90 degrees if out of range
-	elif (siny <= -1.0):
-		mmd_x = math.pi / 2
-	else:
-		mmd_x = -math.asin(siny)
-	
-	# fixing the x rotation, part 1
-	if x ** 2 > 0.5 or w < 0:
-		if x < 0:
-			mmd_x = -math.pi - mmd_x
-		else:
-			mmd_x = math.pi * math.copysign(1, w) - mmd_x
-	
-	# fixing the x rotation, part 2
-	if mmd_x > (math.pi / 2):
-		mmd_x = math.pi - mmd_x
-	elif mmd_x < -(math.pi / 2):
-		mmd_x = -math.pi - mmd_x
-	
-	mmd_x = math.degrees(mmd_x)
-	mmd_y = math.degrees(mmd_y)
-	mmd_z = math.degrees(mmd_z)
-	
-	return [round(mmd_x,4), round(mmd_y,4), round(mmd_z,4)]
 
 def quaternion_to_euler(in_rot):
     z,x,y=in_rot.as_euler('zxy',degrees=True)
-	#还需要修正
-    return [-round(x,4), -round(y,4), round(z,4)]
+    return [round(x,4), round(-y,4), round(-z,4)]
+
 
 #构造
 #传入格式[key type,全frame，对位移是否缩放]
@@ -299,8 +247,8 @@ for block in curves:
                                             break
                                     index=index+1
 
-        else:
-                print("Warning:",bone_chain[-1],"not in dic_mltd, prop_type:",prop_type[0],", Key type:",key_type[0])
+        #else:
+        #        print("Warning:",bone_chain[-1],"not in dic_mltd, prop_type:",prop_type[0],", Key type:",key_type[0])
                 
 print("==== End constructing ====")
 
@@ -352,12 +300,12 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
         if ( high_fps == 1 ):
                for frame in out_data:
                       for i in range(0,frame_len):
-                             outfile.write(str(frame[0])+','+str(i)+','+str(frame[2][i][0])+','+str(frame[2][i][1])+','+str(frame[2][i][2])+','+str(frame[1][i][0])+','+str(frame[1][i][1])+','+str(frame[1][i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+                             outfile.write(str(frame[0])+','+str(i)+','+str(round(frame[2][i][0],4))+','+str(round(frame[2][i][1],4))+','+str(round(frame[2][i][2],4))+','+str(frame[1][i][0])+','+str(frame[1][i][1])+','+str(frame[1][i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
 
         else:
                for frame in out_data:
                       for i in range(0,int(frame_len/2)):
-                             outfile.write(str(frame[0])+','+str(i)+','+str(frame[2][2*i][0])+','+str(frame[2][2*i][1])+','+str(frame[2][2*i][2])+','+str(frame[1][2*i][0])+','+str(frame[1][2*i][1])+','+str(frame[1][2*i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+                             outfile.write(str(frame[0])+','+str(i)+','+str(round(frame[2][2*i][0],4))+','+str(round(frame[2][2*i][1],4))+','+str(round(frame[2][2*i][2],4))+','+str(frame[1][2*i][0])+','+str(frame[1][2*i][1])+','+str(frame[1][2*i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
 
         outfile.write('morphframe_ct:,0\n')
         outfile.write('camframe_ct:,0\n')
