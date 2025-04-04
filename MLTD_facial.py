@@ -35,7 +35,7 @@ def lip_write(input_json,out_file=""):
     with open(input_json, encoding='utf-8') as infile:
         data = json.load(infile)
         
-    print("Input file:",os.path.basename(input_json))
+    print("Info: input file - ",os.path.basename(input_json))
     scenario = data["scenario"]
 
     #初始为闭嘴状态
@@ -48,26 +48,34 @@ def lip_write(input_json,out_file=""):
                 if ( block["param"] != prs_stat ):
                     ftr_stat=block["param"]
                     #对除了闭嘴以外的口型注册帧
-                    if (prs_stat != 54):
+                    #为MMD着想，口型"i"需要用一帧而非两帧切换
+                    if (prs_stat != 54) and (prs_stat != 1):
                     #当前状态口型归零
                         lip_data.append([dic_lip.get(prs_stat),round(block["absTime"]*30),1.0])
                         lip_data.append([dic_lip.get(prs_stat),round(block["absTime"]*30)+3,0.0])
-                    if (ftr_stat != 54):
+                    elif (prs_stat == 1):
+                        lip_data.append([dic_lip.get(prs_stat),round(block["absTime"]*30),1.0])
+                        lip_data.append([dic_lip.get(prs_stat),round(block["absTime"]*30)+2,0.0])
+                    if (ftr_stat != 54) and (ftr_stat != 1):
                     #下个状态口型置一
                         lip_data.append([dic_lip.get(ftr_stat),round(block["absTime"]*30),0.0])
                         lip_data.append([dic_lip.get(ftr_stat),round(block["absTime"]*30)+3,1.0])
+                    elif (ftr_stat == 1):
+                        lip_data.append([dic_lip.get(ftr_stat),round(block["absTime"]*30),0.0])
+                        lip_data.append([dic_lip.get(ftr_stat),round(block["absTime"]*30)+2,1.0])
                     #切换状态
                     prs_stat=ftr_stat
             else:
                 #不在字典里的情况
-                print("param",block["param"],"is not in dic")
+                print("Error: param",block["param"],"is not in dic")
                 
             #口型完成,flag置一
             if ( lip_flag == 0 ):
+                print("Info: lip write done")
                 lip_flag=1
 
     if ( lip_flag == 0 ):
-        print("Lip data not found in",input_json)
+        print("Info: Lip data not found in",input_json)
         
     return lip_flag
 
@@ -78,7 +86,7 @@ def eye_write(input_json,out_file=""):
     with open(input_json, encoding='utf-8') as infile:
         data = json.load(infile)
         
-    print("Input file:",os.path.basename(input_json))
+    print("Info: Input file:",os.path.basename(input_json))
     scenario = data["scenario"]
     
     #默认状态,0睁眼1闭眼2笑
@@ -123,10 +131,11 @@ def eye_write(input_json,out_file=""):
                 prs_stat_r=ftr_stat_r
             
             if ( eye_flag == 0 ):
+                print("Info: eye write done")
                 eye_flag=1
 
     if ( eye_flag == 0 ):
-        print("Eye data not found in",input_json)
+        print("Info: Eye data not found in",input_json)
 
 def lrc_write(input_json,out_file=""):
     global lrc_flag
@@ -134,12 +143,13 @@ def lrc_write(input_json,out_file=""):
     with open(input_json, encoding='utf-8') as infile:
         data = json.load(infile)
 
-    print("Input file:",os.path.basename(input_json))
+    print("Info: Input file:",os.path.basename(input_json))
     scenario = data["scenario"]
     for block in scenario:
         if ( block["type"] == 11 ):
             lrc_data.append([round(block["absTime"],2),re.sub(r"　"," ",block["str"])])
             if ( lrc_flag == 0 ):
+                print("Info: lrc write done")
                 lrc_flag=1
     
 print("==== Start constructing ====")
