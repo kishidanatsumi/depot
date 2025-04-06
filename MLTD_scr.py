@@ -212,13 +212,13 @@ with open(os.path.basename(input_json)+".ass", "w",encoding='utf-8') as outfile:
         outfile.write('\n')
         outfile.write('[Events]\n')
         outfile.write('Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text\n')
-
-        for i in range(0,len(lrc_data)-1):
-            if( i != len(lrc_data) ):
-                outfile.write('Dialogue: 0,'+str(int(lrc_data[i][0]/3600))+':'+str(int(lrc_data[i][0]/60)%60)+':'+str(round(lrc_data[i][0]%60,2))+','+str(int(lrc_data[i+1][0]/3600))+':'+str(int(lrc_data[i+1][0]/60)%60)+':'+str(round(lrc_data[i+1][0]%60,2))+',Default,,0,0,0,,'+lrc_data[i][1]+'\n')
+        print(len(lrc_data))
+        for i in range(0,len(lrc_data)):
+            if ( i == (len(lrc_data)-1) ) :
+                outfile.write('Dialogue: 0,'+str(int(lrc_data[i][0]/3600))+':'+str(int(lrc_data[i][0]/60)%60)+':'+str(round(lrc_data[i][0]%60,2))+','+str(int(lrc_data[i][0]/3600))+':'+str(int(lrc_data[i][0]/60)%60)+':'+str(round(lrc_data[1][0]%60,2))+',Default,,0,0,0,,'+lrc_data[i][1]+'\n')
             else:
-                outfile.write('Dialogue: 0,'+str(int(lrc_data[i][0]/3600))+':'+str(int(lrc_data[i][0]/60)%60)+':'+str(round(lrc_data[i][0]%60,2))+','+str(int(lrc_data[i][0]/3600))+':'+str(int(lrc_data[i][0]/60)%60)+':'+str(round((lrc_data[i][0]+2)%60,2))+',Default,,0,0,0,,'+lrc_data[i][1]+'\n')
-                
+                outfile.write('Dialogue: 0,'+str(int(lrc_data[i][0]/3600))+':'+str(int(lrc_data[i][0]/60)%60)+':'+str(round(lrc_data[i][0]%60,2))+','+str(int(lrc_data[i+1][0]/3600))+':'+str(int(lrc_data[i+1][0]/60)%60)+':'+str(round(lrc_data[i+1][0]%60,2))+',Default,,0,0,0,,'+lrc_data[i][1]+'\n')
+  
 print("Output:",os.path.basename(input_json)+".ass")
 
 
