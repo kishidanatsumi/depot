@@ -38,47 +38,40 @@ dic_mltd = {
 }
 
 dic_wrot = {
-"MODEL_00":[0.0,0.0,0.0],"POSITION":[0.0,0.0,0.0],"BODY_SCALE":[0.0,0.0,0.0],
-"BASE":[0.0,90.0,0.0],"KOSHI":[0.0,0.0,90.0],"MOMO_L":[0.0,0.0,0.0],"HIZA_L":[0.0,0.0,0.0],"ASHI_L":[0.0,0.0,0.0],"TSUMASAKI_L":[0.0,0.0,90.0],
-"MOMO_R":[0.0,0.0,0.0],"HIZA_R":[0.0,0.0,0.0],"ASHI_R":[0.0,0.0,0.0],"TSUMASAKI_R":[0.0,0.0,90.0],
-"MUNE1":[0.0,0.0,-90.0],"MUNE2":[0.0,0.0,0.0],"KUBI":[0.0,0.0,0.0],"ATAMA":[90.0,0.0,-90.0],
-"SAKOTSU_L":[-90.0,-90.0,0.0],"KATA_L":[-90.0,0.0,0.0],"UDE_L":[0.0,0.0,0.0],"TE_L":[90.0,0.0,0.0],
-"HITO3_L":[0.0,0.0,0.0],"HITO2_L":[0.0,0.0,0.0],"HITO1_L":[0.0,0.0,0.0],"KUKO_L":[0.0,0.0,0.0],
-"KO3_L":[0.0,0.0,0.0],"KO2_L":[0.0,0.0,0.0],"KO1_L":[0.0,0.0,0.0],
-"KUSU3_L":[0.0,0.0,0.0],"KUSU2_L":[0.0,0.0,0.0],"KUSU1_L":[0.0,0.0,0.0],
-"NAKA3_L":[0.0,0.0,0.0],"NAKA2_L":[0.0,0.0,0.0],"NAKA1_L":[0.0,0.0,0.0],
-"OYA3_L":[-105.0,-40.40399932861328,20.00699806213379],"OYA2_L":[0.0,0.0,0.0],"OYA1_L":[0.0,0.0,0.0],
-"SAKOTSU_R":[-90.0,90.0,0.0],"KATA_R":[-90.0,0.0,0.0],"UDE_R":[0.0,0.0,0.0],"TE_R":[90.0,0.0,0.0],
-"HITO3_R":[0.0,0.0,0.0],"HITO2_R":[0.0,0.0,0.0],"HITO1_R":[0.0,0.0,0.0],"KUKO_R":[0.0,0.0,0.0],
-"KO3_R":[0.0,0.0,0.0],"KO2_R":[0.0,0.0,0.0],"KO1_R":[0.0,0.0,0.0],
-"KUSU3_R":[0.0,0.0,0.0],"KUSU2_R":[0.0,0.0,0.0],"KUSU1_R":[0.0,0.0,0.0],
-"NAKA3_R":[0.0,0.0,0.0],"NAKA2_R":[0.0,0.0,0.0],"NAKA1_R":[0.0,0.0,0.0],
-"OYA3_R":[-74.99993133544922,-40.40384292602539,-20.007532119750978],"OYA2_R":[0.0,0.0,0.0],"OYA1_R":[0.0,0.0,0.0]
+"MODEL_00":[0,0,0],"BODY_SCALE":[0,0,0],"POSITION":[0,0,0],
+"BASE":[0,90,0],"KOSHI":[0,0,90],"MOMO_L":[0,0,0],"HIZA_L":[0,0,0],"ASHI_L":[0,0,0],"TSUMASAKI_L":[0,0,90],
+"MOMO_R":[0,0,0],"HIZA_R":[0,0,0],"ASHI_R":[0,0,0],"TSUMASAKI_R":[0,0,90],
+"MUNE1":[0,0,-90],"MUNE2":[0,0,0],"KUBI":[0,0,0],"ATAMA":[90,0,-90],
+"SAKOTSU_L":[-90,-90,0],"KATA_L":[-90,0,0],"UDE_L":[0,0,0],"TE_L":[90,0,0],
+"HITO3_L":[0,0,0],"HITO2_L":[0,0,0],"HITO1_L":[0,0,0],"KUKO_L":[0,0,0],
+"KO3_L":[0,0,0],"KO2_L":[0,0,0],"KO1_L":[0,0,0],
+"KUSU3_L":[0,0,0],"KUSU2_L":[0,0,0],"KUSU1_L":[0,0,0],
+"NAKA3_L":[0,0,0],"NAKA2_L":[0,0,0],"NAKA1_L":[0,0,0],
+"OYA3_L":[-105.0,-40.404,20.00753212],"OYA2_L":[0,0,0],"OYA1_L":[0,0,0],
+"SAKOTSU_R":[-90,90,0],"KATA_R":[-90,0,0],"UDE_R":[0,0,0],"TE_R":[90,0,0],
+"HITO3_R":[0,0,0],"HITO2_R":[0,0,0],"HITO1_R":[0,0,0],"KUKO_R":[0,0,0],
+"KO3_R":[0,0,0],"KO2_R":[0,0,0],"KO1_R":[0,0,0],
+"KUSU3_R":[0,0,0],"KUSU2_R":[0,0,0],"KUSU1_R":[0,0,0],
+"NAKA3_R":[0,0,0],"NAKA2_R":[0,0,0],"NAKA1_R":[0,0,0],
+"OYA3_R":[-75,-40.404,-20.00753212],"OYA2_R":[0,0,0],"OYA1_R":[0,0,0]
 }
-
-#需要把parent dic替换成基于bonechain的函数
 
 global frame_len
 global high_fps
 high_fps=0
 export_csv=0
 
-def mmd_rot(in_euler):
+def world_rot(in_euler):
     x,y,z=in_euler
     return rot.from_euler('xyz',[-x,-y,-z],degrees=True)
 
 def unity_rot(in_euler):
     x,y,z=in_euler
-    quat=rot.from_euler('zxy',[z,x,y],degrees=True).as_quat()
-    #unity转mmd轴：X取反，Z取反
-    return rot.from_quat([-quat[0],quat[1],-quat[2],quat[3]])
+    return rot.from_euler('zxy',[-z,-x,y],degrees=True)
 
-#从PMX-VMD-Scripting-Tools扒下来的，可以将MMD的四元数转为MMD的欧拉角
-
-def quaternion_to_euler(in_rot):
+def mmd_rot(in_rot):
     z,x,y=in_rot.as_euler('zxy',degrees=True)
     return [round(x,4), round(-y,4), round(-z,4)]
-
 
 #构造
 #传入格式[key type,全frame，对位移是否缩放]
@@ -88,9 +81,8 @@ def gen_list(key_type,value,rate=1):
         if ( key_type[0] == "Discreate" ):
                 #print("Discrete - total",int((len(value)-2)/2),"frames with",angle,"angle")
                 pt=0
-                
+                #构造全0数列
                 frame_list=[0]*frame_len
-           
                 for i in range(0,int((len(value)-2)/2)):
                         if ( i > 0 ) and ( i < ( (len(value)-2)/2 - 1 ) ):
                                 if not ( value[2*i] <= value[2*i+2] ):
@@ -110,7 +102,6 @@ def gen_list(key_type,value,rate=1):
                                 print("Error: Throw exception when calculating discrete frame value.")
                                 exit(1)
 
-
         #Constant
         if ( key_type[0] == "Const" ):
                 if ( value[0] > -0.0001 ) and ( value[0] < 0.0001 ):
@@ -129,22 +120,16 @@ def gen_list(key_type,value,rate=1):
         #print("Return list length:",len(frame_list),", Min Value:",min(frame_list)," Max Value:",max(frame_list))
         return frame_list
 
-
-
 print("==== Info ====")
 print("Input file:",os.path.basename(input_json))
 
 data = json.load(infile)
-
 #initial frame data
-#frame_data=[骨骼名,[x旋转],[y旋转],[z旋转],[x位移],[y位移],[z位移]]
+#frame_data=[骨骼名,[x旋转],[y旋转],[z旋转],[x位移],[y位移],[z位移],[亲骨骼序列]]
 frame_data=[]
 frame_len = round(data["time_length"]*60)+1
 for bone_name in dic_mltd:
-        frame_data.append([bone_name,[0]*frame_len,[0]*frame_len,[0]*frame_len,[0]*frame_len,[0]*frame_len,[0]*frame_len])
-
-
-csv_data=[]
+        frame_data.append([bone_name,[0]*frame_len,[0]*frame_len,[0]*frame_len,[0]*frame_len,[0]*frame_len,[0]*frame_len,[]])
 
 print("Info: time length is",data["time_length"])
 print("Info: total frame length is",frame_len)
@@ -157,18 +142,20 @@ for block in curves:
         #所有亲骨骼
         bone_chain=path.split('/')
         bone_name=bone_chain[-1]
-
         prop_type=re.findall(r"property_type (\w+)*",str(block["attribs"][0]))
         key_type=re.findall(r"key_type (\w+)*",str(block["attribs"][1]))
         value=block["values"]
         #print( bone_chain[-1] )
-
+        
         if ( bone_name in dic_mltd):
-                #print("Path:",path[0],"| Map:",dic_mltd.get(path[0]),"| Property Type:",prop_type[0],"| Key type:",key_type[0],"| Value:",len(value))
+                print("Info: Path name - ",bone_name,"| Property Type - ",prop_type[0],"| Key type -",key_type[0])
+                
+                #print("Path:",bone_name,"| Map:",dic_mltd.get(path[0]),"| Property Type:",prop_type[0],"| Key type:",key_type[0],"| Value:",len(value))
                 
                 index = 0
                 for index in range(0,len(frame_data)):
                         if ( frame_data[index][0] == bone_name ):
+                                    frame_data[index][7]=bone_chain[:-1]
                                     if ( prop_type[0] == "AngleX" ):
                                             frame_data[index][1]=gen_list(key_type,value,1)
                                             break
@@ -189,8 +176,6 @@ for block in curves:
                                             break
                                     index=index+1
 
-        #else:
-        #        print("Warning:",bone_chain[-1],"not in dic_mltd, prop_type:",prop_type[0],", Key type:",key_type[0])
                 
 print("==== End constructing ====")
 
@@ -198,30 +183,30 @@ print("==== Start converting ====")
 out_data=[]
 #out_data=[MMD骨骼名,[xyz旋转],[xyz位移]]
 for frame in frame_data:
-        axis=mmd_rot([0,0,0])
-        if ( frame[0] in dic_parent ) :
+        axis=world_rot([0,0,0])
+        if ( frame[0] in dic_wrot ):
                 print("Info: calculating",frame[0],"bone as",dic_mltd.get(frame[0]))
-                axis=mmd_rot([0,0,0])
-                for parent_bone in dic_parent.get(frame[0]):
+                axis=world_rot([0,0,0])
+                print ("Info: parent bone chain is",frame[7])
+                for parent_bone in frame[7]:
                         #print("For bone",frame[0],"calculating",parent_bone)
                         if (parent_bone in dic_wrot):
-                                axis=axis*mmd_rot(dic_wrot.get(parent_bone))
+                                axis=axis*world_rot(dic_wrot.get(parent_bone))
                         else:
                                 print("Warning: parent bone",parent_bone,"wrot is missing")
                 if ( frame[0] in dic_wrot ):
-                        origin_pose=axis*mmd_rot(dic_wrot.get(frame[0]))
+                        origin_pose=axis*world_rot(dic_wrot.get(frame[0]))
                 else:
                         print("Error: bone",frame[0],"wrot is missing")
                 
-
                 out_rot=[]
                 out_pos=[]
                 for i in range(0,frame_len):
                         target_pose=axis*unity_rot([frame[1][i],frame[2][i],frame[3][i]])
-                        x_rot,y_rot,z_rot=quaternion_to_euler(target_pose*origin_pose.inv())
+                        x_rot,y_rot,z_rot=mmd_rot(target_pose*origin_pose.inv())
                         out_rot.append([x_rot,y_rot,z_rot])
                         if ( frame[0] == "BASE"):
-                               out_pos.append([frame[4][i],frame[5][i]-8.73,frame[6][i]])
+                               out_pos.append([frame[4][i],frame[5][i]-8.67,frame[6][i]])
                         else:
                                out_pos.append([frame[4][i],frame[5][i],frame[6][i]])
                 if not (frame[0] in dic_mltd):
