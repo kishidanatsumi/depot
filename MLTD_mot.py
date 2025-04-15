@@ -58,7 +58,9 @@ dic_wrot = {
 
 global frame_len
 global high_fps
+#0=30fps,1=60fps
 high_fps=0
+#是否导出debug用数据表
 export_csv=0
 
 def world_rot(in_euler):
@@ -73,8 +75,7 @@ def mmd_rot(in_rot):
     z,x,y=in_rot.as_euler('zxy',degrees=True)
     return [round(x,4), round(-y,4), round(-z,4)]
 
-#构造
-#传入格式[key type,全frame，对位移是否缩放]
+#传入格式[key type,全frame，对位移缩放系数]
 def gen_list(key_type,value,rate=1):
         frame_list=[]
         #Discrete
@@ -124,7 +125,7 @@ print("==== Info ====")
 print("Input file:",os.path.basename(input_json))
 
 data = json.load(infile)
-#initial frame data
+#构造全0数据块
 #frame_data=[骨骼名,[x旋转],[y旋转],[z旋转],[x位移],[y位移],[z位移],[亲骨骼序列]]
 frame_data=[]
 frame_len = round(data["time_length"]*60)+1
@@ -139,7 +140,6 @@ curves = data["curves"]
 
 for block in curves:
         path=str(block["path"])
-        #所有亲骨骼
         bone_chain=path.split('/')
         bone_name=bone_chain[-1]
         prop_type=re.findall(r"property_type (\w+)*",str(block["attribs"][0]))
@@ -175,8 +175,6 @@ for block in curves:
                                             frame_data[index][6]=gen_list(key_type,value,-10)
                                             break
                                     index=index+1
-
-                
 print("==== End constructing ====")
 
 print("==== Start converting ====")
@@ -195,6 +193,7 @@ for frame in frame_data:
                         else:
                                 print("Warning: parent bone",parent_bone,"wrot is missing")
                 if ( frame[0] in dic_wrot ):
+                        #骨骼本身的世界旋转
                         origin_pose=axis*world_rot(dic_wrot.get(frame[0]))
                 else:
                         print("Error: bone",frame[0],"wrot is missing")
@@ -202,6 +201,7 @@ for frame in frame_data:
                 out_rot=[]
                 out_pos=[]
                 for i in range(0,frame_len):
+                        #应用动画后的世界旋转
                         target_pose=axis*unity_rot([frame[1][i],frame[2][i],frame[3][i]])
                         x_rot,y_rot,z_rot=mmd_rot(target_pose*origin_pose.inv())
                         out_rot.append([x_rot,y_rot,z_rot])
@@ -228,7 +228,6 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
                for frame in out_data:
                       for i in range(0,frame_len):
                              outfile.write(str(frame[0])+','+str(i)+','+str(round(frame[2][i][0],4))+','+str(round(frame[2][i][1],4))+','+str(round(frame[2][i][2],4))+','+str(frame[1][i][0])+','+str(frame[1][i][1])+','+str(frame[1][i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
-
         else:
                for frame in out_data:
                       for i in range(0,int(frame_len/2)):
