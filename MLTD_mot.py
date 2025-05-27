@@ -222,13 +222,15 @@ print("==== End converting ====")
 with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
         outfile.write('version:,2\n')
         outfile.write('modelname:,foobar\n')
-        outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len/2))+'\n')
-        outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
         if ( high_fps == 1 ):
+               outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len))+'\n')
+               outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
                for frame in out_data:
                       for i in range(0,frame_len):
                              outfile.write(str(frame[0])+','+str(i)+','+str(round(frame[2][i][0],4))+','+str(round(frame[2][i][1],4))+','+str(round(frame[2][i][2],4))+','+str(frame[1][i][0])+','+str(frame[1][i][1])+','+str(frame[1][i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
         else:
+               outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len/2))+'\n')
+               outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
                for frame in out_data:
                       for i in range(0,int(frame_len/2)):
                              outfile.write(str(frame[0])+','+str(i)+','+str(round(frame[2][2*i][0],4))+','+str(round(frame[2][2*i][1],4))+','+str(round(frame[2][2*i][2],4))+','+str(frame[1][2*i][0])+','+str(frame[1][2*i][1])+','+str(frame[1][2*i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
