@@ -8,7 +8,7 @@ np.set_printoptions(suppress=True)
 
 
 #input_json = sys.argv[1]
-input_json='./cam_rollsk_cam.imo.json'
+input_json='./cam_sunris_cam.imo.json'
 infile=open(input_json)
 
 global frame_len
@@ -152,11 +152,11 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
                         rotate=rot_cal(np.array([cam_data[0][i],cam_data[1][i],cam_data[2][i]]),np.array([cam_data[3][i],cam_data[4][i],cam_data[5][i]]),cam_data[6][i])
                         distance=1.25*np.linalg.norm(np.array([cam_data[3][i]-cam_data[0][i],cam_data[4][i]-cam_data[1][i],cam_data[5][i]-cam_data[2][i]]))
                         if (add_fov==1):
-                                fov=fov_cal(cam_data[7][i])
+                                fov=str(int(fov_cal(cam_data[7][i])))
                         else:
-                                fov=30
+                                fov=str(30)
                                 
-                        outfile.write(str(i)+','+str(round(distance,3))+','+str(round(-cam_data[0][i]*12.5,3))+','+str(round(cam_data[1][i]*12.5,3))+','+str(round(-cam_data[2][i]*12.5,3))+','+str(round(rotate[0],3))+','+str(round(rotate[1],3))+','+str(round(rotate[2],3))+','+str(round(fov,3))+',False,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107\n')
+                        outfile.write(str(i)+','+str(round(distance,3))+','+str(round(-cam_data[0][i]*12.5,3))+','+str(round(cam_data[1][i]*12.5,3))+','+str(round(-cam_data[2][i]*12.5,3))+','+str(round(rotate[0],3))+','+str(round(rotate[1],3))+','+str(round(rotate[2],3))+','+fov+',False,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107\n')
         else:
                 outfile.write('camframe_ct:,'+str(int(frame_len/2))+'\n')
                 outfile.write('frame_num,target_dist,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,FOV,perspective,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by,interp_dist_ax,interp_dist_ay,interp_dist_bx,interp_dist_by,interp_fov_ax,interp_fov_ay,interp_fov_bx,interp_fov_by\n')
@@ -164,11 +164,11 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
                         rotate=rot_cal(np.array([cam_data[0][2*i],cam_data[1][2*i],cam_data[2][2*i]]),np.array([cam_data[3][2*i],cam_data[4][2*i],cam_data[5][2*i]]),cam_data[6][2*i])
                         distance=1.25*np.linalg.norm(np.array([cam_data[3][2*i]-cam_data[0][2*i],cam_data[4][2*i]-cam_data[1][2*i],cam_data[5][2*i]-cam_data[2][2*i]]))
                         if (add_fov==1):
-                                fov=fov_cal(cam_data[7][2*i])
+                                fov=str(int(fov_cal(cam_data[7][2*i])))
                         else:
-                                fov=30
+                                fov=str(30)
                                 
-                        outfile.write(str(i)+','+str(round(distance,3))+','+str(round(-cam_data[0][2*i]*12.5,3))+','+str(round(cam_data[1][2*i]*12.5,3))+','+str(round(-cam_data[2][2*i]*12.5,3))+','+str(round(rotate[0],3))+','+str(round(rotate[1],3))+','+str(round(rotate[2],3))+','+str(round(fov,3))+',False,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107\n')
+                        outfile.write(str(i)+','+str(round(distance,3))+','+str(round(-cam_data[0][2*i]*12.5,3))+','+str(round(cam_data[1][2*i]*12.5,3))+','+str(round(-cam_data[2][2*i]*12.5,3))+','+str(round(rotate[0],3))+','+str(round(rotate[1],3))+','+str(round(rotate[2],3))+','+fov+',False,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107,20,20,107,107\n')
 
         outfile.write('lightframe_ct:,0\n')
         outfile.write('shadowframe_ct:,0\n')
