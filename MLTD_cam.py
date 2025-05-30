@@ -155,7 +155,7 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
                                 fov=str(int(fov_cal(cam_data[7][i])))
                         elif (add_fov==2):
                                 fov=str(30)
-                                distance=distance+cam_data[7][i]/10
+                                distance=distance+cam_data[7][i]/2
                         else:
                                 fov=str(30)
                                 
@@ -170,7 +170,7 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
                                 fov=str(int(fov_cal(cam_data[7][2*i])))
                         elif (add_fov==2):
                                 fov=str(30)
-                                distance=distance+cam_data[7][2*i]/10
+                                distance=distance+cam_data[7][2*i]/2
                         else:
                                 fov=str(30)
                                 
