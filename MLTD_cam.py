@@ -15,7 +15,7 @@ global frame_len
 global high_fps
 #0=30fps,1=60fps
 high_fps=0
-#0=30FOV,1=加FOV
+#0=30FOV,1=加FOV,2=FOV换算距离
 add_fov=1
 
 def bezier(value):
@@ -153,6 +153,9 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
                         distance=1.25*np.linalg.norm(np.array([cam_data[3][i]-cam_data[0][i],cam_data[4][i]-cam_data[1][i],cam_data[5][i]-cam_data[2][i]]))
                         if (add_fov==1):
                                 fov=str(int(fov_cal(cam_data[7][i])))
+                        elif (add_fov==2):
+                                fov=str(30)
+                                distance=distance+cam_data[7][i]
                         else:
                                 fov=str(30)
                                 
@@ -165,6 +168,9 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
                         distance=1.25*np.linalg.norm(np.array([cam_data[3][2*i]-cam_data[0][2*i],cam_data[4][2*i]-cam_data[1][2*i],cam_data[5][2*i]-cam_data[2][2*i]]))
                         if (add_fov==1):
                                 fov=str(int(fov_cal(cam_data[7][2*i])))
+                        elif (add_fov==2):
+                                fov=str(30)
+                                distance=distance+cam_data[7][2*i]
                         else:
                                 fov=str(30)
                                 
@@ -174,5 +180,3 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
         outfile.write('shadowframe_ct:,0\n')
         outfile.write('ik/dispframe_ct:,0\n')
 print("Info: output txt as",os.path.basename(input_json)+".txt")
-
-
