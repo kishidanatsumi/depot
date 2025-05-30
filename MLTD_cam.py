@@ -15,7 +15,7 @@ global frame_len
 global high_fps
 #0=30fps,1=60fps
 high_fps=0
-#0=30FOV,1=加FOV,2=FOV换算距离
+#0=30FOV,1=加FOV,2=FOV加算距离
 add_fov=1
 
 def bezier(value):
@@ -155,7 +155,7 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
                                 fov=str(int(fov_cal(cam_data[7][i])))
                         elif (add_fov==2):
                                 fov=str(30)
-                                distance=distance+cam_data[7][i]
+                                distance=distance+cam_data[7][i]/10
                         else:
                                 fov=str(30)
                                 
@@ -170,7 +170,7 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
                                 fov=str(int(fov_cal(cam_data[7][2*i])))
                         elif (add_fov==2):
                                 fov=str(30)
-                                distance=distance+cam_data[7][2*i]
+                                distance=distance+cam_data[7][2*i]/10
                         else:
                                 fov=str(30)
                                 
