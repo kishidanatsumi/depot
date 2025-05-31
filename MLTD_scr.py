@@ -3,7 +3,7 @@ import os
 import csv
 import re
 
-input='ratata'
+input='sunris'
 input_json='./'+input+'_scenario_sobj.json'
 input_json_tate='./'+input+'_scenario_tate_sobj.json'
 input_json_yoko='./'+input+'_scenario_yoko_sobj.json'
@@ -186,6 +186,25 @@ exit()
 '''
 
 
+print("==== Start converting ====")
+with open(os.path.basename(input_json)+"_facial.txt", "w",encoding='utf-8') as outfile:
+        outfile.write('version:,2\n')
+        outfile.write('modelname:,foobar\n')
+        outfile.write('boneframe_ct:,0\n')
+        #outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
+        outfile.write('morphframe_ct:,'+str(len(lip_data)+len(eye_data))+'\n')
+        outfile.write('morph_name,frame_num,value\n')
+        #逐帧构造
+        for frame in lip_data:
+            outfile.write(str(frame[0])+','+str(frame[1])+','+str(frame[2])+'\n')
+        for frame in eye_data:
+            outfile.write(str(frame[0])+','+str(frame[1])+','+str(frame[2])+'\n')
+        outfile.write('camframe_ct:,0\n')
+        outfile.write('lightframe_ct:,0\n')
+        outfile.write('shadowframe_ct:,0\n')
+        outfile.write('ik/dispframe_ct:,0\n')
+print("Output:",os.path.basename(input_json)+"_facial.txt")
+
 with open(os.path.basename(input_json)+".ass", "w",encoding='utf-8') as outfile:
         outfile.write('[V4+ Styles]\n')
         outfile.write('Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding\n')
@@ -204,6 +223,3 @@ print("Output:",os.path.basename(input_json)+".ass")
 
 
 print("==== End converting ====")
-
-
-
