@@ -1,16 +1,28 @@
-import json
-import os
-import sys
-import re
+import json,os,sys,re,csv,math
 import numpy as np
-import csv
 from scipy.spatial.transform import Rotation as rot
-import math
+
+global frame_len
+global high_fps
+
+#文件名
+input_song='cmfeel'
+#0=30fps,1=60fps
+high_fps=0
+#舞蹈文件id
+dance_id='01'
+#站位id(无=0)
+pos_id=0
+#是否导出debug用数据表
+export_csv=0
 
 #input_json = sys.argv[1]
-input_json='./dan_cmfeel_01_dan.imo.asset.json'
-infile=open(input_json)
+input_json='./dan_'+input_song+'_'+dance_id+'_dan.imo.asset.json'
+input_json_yoko='./'+input_song+'_scenario_yoko_sobj.json'
 
+dic_mltd2 = {
+"POSITION":"センター",
+}
 
 dic_mltd = {
 "POSITION":"センター","BASE":"グルーブ",
@@ -55,13 +67,6 @@ dic_wrot = {
 "NAKA3_R":[0,0,0],"NAKA2_R":[0,0,0],"NAKA1_R":[0,0,0],
 "OYA3_R":[-75,-40.404,-20.00753212],"OYA2_R":[0,0,0],"OYA1_R":[0,0,0]
 }
-
-global frame_len
-global high_fps
-#0=30fps,1=60fps
-high_fps=0
-#是否导出debug用数据表
-export_csv=0
 
 def world_rot(in_euler):
     x,y,z=in_euler
@@ -121,10 +126,11 @@ def gen_list(key_type,value,rate=1):
         #print("Return list length:",len(frame_list),", Min Value:",min(frame_list)," Max Value:",max(frame_list))
         return frame_list
 
+
 print("==== Info ====")
 print("Input file:",os.path.basename(input_json))
-
-data = json.load(infile)
+infile=open(input_json)
+data=json.load(infile)
 #构造全0数据块
 #frame_data=[骨骼名,[x旋转],[y旋转],[z旋转],[x位移],[y位移],[z位移],[亲骨骼序列]]
 frame_data=[]
@@ -151,7 +157,6 @@ for block in curves:
                 print("Info: Path name - ",bone_name,"| Property Type - ",prop_type[0],"| Key type -",key_type[0])
                 
                 #print("Path:",bone_name,"| Map:",dic_mltd.get(path[0]),"| Property Type:",prop_type[0],"| Key type:",key_type[0],"| Value:",len(value))
-                
                 index = 0
                 for index in range(0,len(frame_data)):
                         if ( frame_data[index][0] == bone_name ):
@@ -175,6 +180,22 @@ for block in curves:
                                             frame_data[index][6]=gen_list(key_type,value,-10)
                                             break
                                     index=index+1
+
+#out_data=[时间,x,y,z,w]
+pos_data=[]
+if (pos_id != 0):
+        infile_yoko=open(input_json_yoko)
+        data_yoko=json.load(infile_yoko)
+        scenario = data_yoko["scenario"]
+        for block in scenario:
+                if (block["type"]==52) and ( pos_id <= len(block["formation"])):
+                        #print("Param:",block["param"],"| Time:",float(block["absTime"]),"| Pos:",block["formation"][pos_id-1])
+                        pos_data.append([float(block["absTime"]),block["formation"][pos_id-1]["x"]*10,block["formation"][pos_id-1]["y"]*10,block["formation"][pos_id-1]["z"]*10,block["formation"][pos_id-1]["w"]])
+                elif (block["type"]==52) and ( pos_id > len(block["formation"])):
+                        print("Warning: position id",pos_id,"out of range, data width is",len(block["formation"]))
+                        break
+
+print("Info: position id",pos_id,"include",len(pos_data),"position data")
 print("==== End constructing ====")
 
 print("==== Start converting ====")
@@ -196,7 +217,7 @@ for frame in frame_data:
                         #骨骼本身的世界旋转
                         origin_pose=axis*world_rot(dic_wrot.get(frame[0]))
                 else:
-                        print("Error: bone",frame[0],"wrot is missing")
+                        print("Warning: bone",frame[0],"wrot is missing")
                 
                 out_rot=[]
                 out_pos=[]
@@ -223,14 +244,51 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
         outfile.write('version:,2\n')
         outfile.write('modelname:,foobar\n')
         if ( high_fps == 1 ):
-               outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len))+'\n')
-               outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
+               if ( pos_id != 0 ) and ( len(pos_data) > 0 ):
+                      print("Info: export motion with position id",pos_id)
+                      outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len)+2*len(pos_data)-1)+'\n')
+                      outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
+
+                      outfile.write('全ての親'+','+str(round(pos_data[0][0]*60))+','+str(round(pos_data[0][1],4))+','+str(round(pos_data[0][2],4))+','+str(round(pos_data[0][3],4))+',0,'+str(pos_data[0][4])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+                      for i in range(1,len(pos_data)):
+                                     outfile.write('全ての親'+','+str(round(pos_data[i][0]*60)-1)+','+str(round(pos_data[i-1][1],4))+','+str(round(pos_data[i-1][2],4))+','+str(round(pos_data[i-1][3],4))+',0,'+str(pos_data[i-1][4])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+                                     outfile.write('全ての親'+','+str(round(pos_data[i][0]*60))+','+str(round(pos_data[i][1],4))+','+str(round(pos_data[i][2],4))+','+str(round(pos_data[i][3],4))+',0,'+str(pos_data[i][4])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+                                  
+               elif ( pos_id != 0 ) and ( len(pos_data) == 0 ):
+                      print("Info: export motion without position since position id",pos_id,"is out of range")
+                      outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len))+'\n')
+                      outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
+
+               else:
+                      print("Info: export motion without position")
+                      outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len))+'\n')
+                      outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
+
                for frame in out_data:
                       for i in range(0,frame_len):
                              outfile.write(str(frame[0])+','+str(i)+','+str(round(frame[2][i][0],4))+','+str(round(frame[2][i][1],4))+','+str(round(frame[2][i][2],4))+','+str(frame[1][i][0])+','+str(frame[1][i][1])+','+str(frame[1][i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+
         else:
-               outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len/2))+'\n')
-               outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
+               if ( pos_id != 0 ) and ( len(pos_data) > 0 ):
+                      print("Info: export motion with position id",pos_id)
+                      outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len/2)+2*len(pos_data)-1)+'\n')
+                      outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
+
+                      outfile.write('全ての親'+','+str(round(pos_data[0][0]*60))+','+str(round(pos_data[0][1],4))+','+str(round(pos_data[0][2],4))+','+str(round(pos_data[0][3],4))+',0,'+str(pos_data[0][4])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+                      for i in range(1,len(pos_data)):
+                                     outfile.write('全ての親'+','+str(round(pos_data[i][0]*30)-1)+','+str(round(pos_data[i-1][1],4))+','+str(round(pos_data[i-1][2],4))+','+str(round(pos_data[i-1][3],4))+',0,'+str(pos_data[i-1][4])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+                                     outfile.write('全ての親'+','+str(round(pos_data[i][0]*30))+','+str(round(pos_data[i][1],4))+','+str(round(pos_data[i][2],4))+','+str(round(pos_data[i][3],4))+',0,'+str(pos_data[i][4])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
+
+               elif ( pos_id != 0 ) and ( len(pos_data) == 0 ):
+                      print("Info: export motion without position since position id",pos_id,"is out of range")
+                      outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len/2))+'\n')
+                      outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
+
+               else:
+                      print("Info: export motion without position")
+                      outfile.write('boneframe_ct:,'+str(len(frame_data)*int(frame_len/2))+'\n')
+                      outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
+
                for frame in out_data:
                       for i in range(0,int(frame_len/2)):
                              outfile.write(str(frame[0])+','+str(i)+','+str(round(frame[2][2*i][0],4))+','+str(round(frame[2][2*i][1],4))+','+str(round(frame[2][2*i][2],4))+','+str(frame[1][2*i][0])+','+str(frame[1][2*i][1])+','+str(frame[1][2*i][2])+',False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n')
