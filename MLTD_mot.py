@@ -20,10 +20,6 @@ export_csv=0
 input_json='./dan_'+input_song+'_'+dance_id+'_dan.imo.asset.json'
 input_json_yoko='./'+input_song+'_scenario_yoko_sobj.json'
 
-dic_mltd2 = {
-"POSITION":"センター",
-}
-
 dic_mltd = {
 "POSITION":"センター","BASE":"グルーブ",
 "KOSHI":"下半身","MUNE1":"上半身","MUNE2":"上半身2","KUBI":"首","ATAMA":"頭",
