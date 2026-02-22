@@ -1,12 +1,29 @@
-#简易的gif合并，无透明度，黑底
-import imageio
-import os
+#带透明度的gif合并
 import sys
+from PIL import Image
 
+fps = 30
 input_files = sys.argv[1:]
 
-fps = 25
+sel = 0
 
-imageio.mimsave('animation.gif', [imageio.imread(f) for f in input_files], fps=fps)
+output_file = "out.gif"
+images = [Image.open(file).convert('RGBA') for file in input_files]
+
+width, height = images[0].size
+
+if sel == 1:
+    for image in images:
+        print("start process:",image)
+        for y in range(height):
+            for x in range(width):
+                r, g, b, a = image.getpixel((x, y))
+                if a < 128:
+                    image.putpixel((x, y), (0, 0, 0, 0))
+
+print("start gif")
+
+images[0].save(output_file, save_all=True,optimize=False, append_images=images[1:], duration=1000/fps, loop=0)
 
 print("done")
+input()
