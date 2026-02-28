@@ -3,11 +3,14 @@ import os
 import sys
 import re
 import numpy as np
-
 from scipy.spatial.transform import Rotation as rot
+
+#input_json = sys.argv[1]
 input_json='./Hi_Fi_vertical_Camera.json'
 
+#0=30fps,1=60fps
 hi_fps=0
+#0=关键帧,1=逐帧
 full_frame=0
 
 global frame_len
@@ -95,18 +98,21 @@ def bezier(frame_in):
                                                 
                                         #        print(i,v3,v0,frame_in[pt+1][4][0],p)
                                         frame_out[i]=v0+(v3-v0)*v_curve
+                                #双贝塞尔点
                                 elif(len(frame_in[pt+1][4])==2):
                                         p2=-frame_in[pt+1][4][1]/(v3-v0)
                                         p3=-frame_in[pt+1][4][2]/(v3-v0)
                                         t_curve=(i-t0)/(t3-t0)
                                         v_curve=1-(3*p3*(1-t_curve)*(t_curve**2)+3*p2*((1-t_curve)**2)*t+(1-t_curve)**3)
-
                                         frame_out[i]=v0+(v3-v0)*v_curve
+                                #贝塞尔点>2，没见到例子但留个case
                                 else:
                                         print("Warning: frame",frame_in[pt][0],"to",frame_in[pt+1][0],"has",len(frame_in[pt+1][4]),"bezier point and",len(frame_in[pt+1][2]),"curve")
+                                        frame_out[i]=p0
                         else:
                                 #interpolateType=0，定值
                                 frame_out[i]=p0
+                                
                 elif ( i == nxt_state ):
                         frame_out[i]=p3
                         prs_state=nxt_state
@@ -132,7 +138,7 @@ with open(input_json, encoding='utf-8') as infile:
     data = json.load(infile)
         
 print("Info: input file is",os.path.basename(input_json))
-#[帧数,x,y,z,curve]
+
 pos_keys = data["cameraPosKeys"]["thisList"]
 lookat_keys = data["cameraLookAtKeys"]["thisList"]
 roll_keys = data["cameraRollKeys"]["thisList"]
@@ -145,10 +151,17 @@ frame_len=pos_keys[-1]["frame"]
 
 key_frame=[]
 cam_data=[[0]*frame_len]*8
+
 posx_list=[]
 posy_list=[]
 posy_abs_list=[]
 posz_list=[]
+lkatx_list=[]
+lkaty_list=[]
+lkatz_list=[]
+roll_list=[]
+fov_list=[]
+
 for key in pos_keys:
         key_frame.append(key["frame"])
         bezierx_list=[]
@@ -161,8 +174,9 @@ for key in pos_keys:
                         beziery_list.append(key["bezierPoints"][i]["y"])
                         bezierz_list.append(key["bezierPoints"][i]["z"])
 
-
+#[frame,value,curve data,inerpolateType,bezier]
         if key["setType"]==2:
+                #用offset
                 posx_list.append([key["frame"],key["offset"]["x"],key["curve"]["m_Curve"],key["interpolateType"],bezierx_list])
                 posy_list.append([key["frame"],key["offset"]["y"],key["curve"]["m_Curve"],key["interpolateType"],beziery_list])
                 if (key["charaRelativeBase"]==0):
@@ -171,6 +185,7 @@ for key in pos_keys:
                         posy_abs_list.append([key["frame"],key["offset"]["y"]+1.35,key["curve"]["m_Curve"],key["interpolateType"],beziery_list])
                 posz_list.append([key["frame"],key["offset"]["z"],key["curve"]["m_Curve"],key["interpolateType"],bezierz_list])
         else:
+                #用posDirect
                 posx_list.append([key["frame"],key["posDirect"]["x"],key["curve"]["m_Curve"],key["interpolateType"],bezierx_list])
                 posy_list.append([key["frame"],key["posDirect"]["y"],key["curve"]["m_Curve"],key["interpolateType"],beziery_list])
                 if (key["charaRelativeBase"]==0):
@@ -179,10 +194,6 @@ for key in pos_keys:
                         posy_abs_list.append([key["frame"],key["posDirect"]["y"]+1.35,key["curve"]["m_Curve"],key["interpolateType"],beziery_list])
                 posz_list.append([key["frame"],key["posDirect"]["z"],key["curve"]["m_Curve"],key["interpolateType"],bezierz_list])
 
-
-lkatx_list=[]
-lkaty_list=[]
-lkatz_list=[]
 for key in lookat_keys:
         key_frame.append(key["frame"])
         bezierx_list=[]
@@ -201,17 +212,14 @@ for key in lookat_keys:
 
 
 
-roll_list=[]
 for key in roll_keys:
         key_frame.append(key["frame"])
         roll_list.append([key["frame"],key["degree"],key["curve"]["m_Curve"],key["interpolateType"],[]])
 
-fov_list=[]
 for key in fov_keys:
         key_frame.append(key["frame"])
         fov_list.append([key["frame"],key["fov"],key["curve"]["m_Curve"],key["interpolateType"],[]])
 
-#[x,y,z]
 print("Processing:posX")
 posx_frame=bezier(posx_list)
 print("Processing:posY")
@@ -224,16 +232,13 @@ print("Processing:lkat")
 lkatx_frame=bezier(lkatx_list)
 lkaty_frame=bezier(lkaty_list)
 lkatz_frame=bezier(lkatz_list)
+print("Processing:roll")
 roll_frame=bezier(roll_list)
+print("Processing:fov")
 fov_frame=bezier(fov_list)
-
-#for i in range(7174,7196):
-#        print(lkatx_frame[i],lkaty_frame[i],lkatz_frame[i])
-#sys.exit()
 
 key_frame=sorted(set(key_frame))
 key_frame.pop()
-#print("key_frame:",key_frame)
 #导出动作txt
 with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
         outfile.write('version:,2\n')
