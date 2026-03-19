@@ -1,0 +1,77 @@
+  Overview
+                                                                                                                                                                                                                   
+  This is a Windows kernel driver function prologue, presented in two forms:
+  1. High-level decompiled C (line 1) — IDA-style output                                                                                                                                                           
+  2. Low-level IR/lifted form (lines 3–40) — likely from a binary lifter (e.g., Binary Ninja BNIL, SSPAM, or similar)
+
+  ---
+  IR Notation Key
+
+  ┌───────────┬────────────────────────────────────────────────────┐
+  │ Notation  │                      Meaning                       │
+  ├───────────┼────────────────────────────────────────────────────┤
+  │ 8: prefix │ 64-bit (8-byte) operation                          │
+  ├───────────┼────────────────────────────────────────────────────┤
+  │ 4: prefix │ 32-bit (4-byte) operation                          │
+  ├───────────┼────────────────────────────────────────────────────┤
+  │ vreg      │ Virtual/SSA register                               │
+  ├───────────┼────────────────────────────────────────────────────┤
+  │ 8:[addr]  │ Memory dereference (load/store)                    │
+  ├───────────┼────────────────────────────────────────────────────┤
+  │ rflag->   │ Flag computation side-effect                       │
+  ├───────────┼────────────────────────────────────────────────────┤
+  │ 8:vreg0   │ Used as a PC tracker (current instruction address) │
+  └───────────┴────────────────────────────────────────────────────┘
+
+  ---
+  Step-by-Step Trace
+
+  1. Save incoming parameters to shadow space (lines 3–11)
+
+  [rsp+0x10] = rdx   ← RegistryPath (2nd arg)
+  [rsp+0x08] = rcx   ← DriverObject (1st arg)
+  Standard Windows x64 calling convention: callee saves args to the caller's shadow space.
+
+  2. Prologue: Push rdi, allocate stack frame (lines 12–22)
+
+  push rdi              ← save non-volatile register
+  rsp -= 0xd0 (208)    ← allocate 208 bytes of local stack space
+
+  3. Stack security cookie setup (lines 23–35)
+
+  vreg1 = [0x140107350]     ← read __security_cookie (global)
+  vreg1 ^= rsp              ← XOR with stack pointer
+  [rsp + 0xc0] = vreg1      ← store canary on stack
+  The address arithmetic (A | B) + (A & B) = A + B is used as an obfuscated way to compute rsp + 0xc0. This is standard /GS stack canary initialization.
+
+  4. Zero out home space (lines 36–40)
+
+  4:[rsp + 0x20] = 0    ← zero 4 bytes at home space slot
+
+  5. Call timing utility (lines 41–45)
+
+  sub_140094338():
+      return KeQueryTimeIncrement() * MEMORY[0xFFFFF78000000320] / 10000LL;
+  - KeQueryTimeIncrement() — returns system timer granularity in 100ns units
+  - 0xFFFFF78000000320 — offset 0x320 into KUSER_SHARED_DATA (kernel shared data page), likely a tick/time field
+  - Division by 10000 converts 100ns units → milliseconds or similar
+
+  ---
+  Key Observations
+
+  - Context: This is a DriverEntry-equivalent function in a Windows kernel driver (receives DriverObject + RegistryPath)
+  - Security: Uses /GS stack canary (__security_cookie at 0x140107350)
+  - Timing call: Queries kernel time — possibly for timestamping, throttling, or timing-based logic later in the function
+  - IR style: vreg0 is consistently updated with the current instruction address — this is a common pattern in IR lifters that track the program counter explicitly per statement
+  - Obfuscated addressing: The (A | B) + (A & B) pattern for A + B may indicate compiler optimizations or mild obfuscation, but is mathematically equivalent
+
+  ---
+  Summary
+
+  This snippet is the function prologue of a Windows kernel driver entry point. It:
+  1. Saves arguments and callee-saved registers
+  2. Allocates a 208-byte local stack frame
+  3. Places a __security_cookie canary at [rsp+0xc0]
+  4. Calls a kernel timing function (likely for internal time tracking)
+
+  Nothing immediately suspicious in this excerpt — it's consistent with a standard compiled Windows kernel driver. Further analysis would require seeing the rest of the function body.
