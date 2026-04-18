@@ -28,21 +28,19 @@ def convert(input_object):
 
 def clean_action(input_object):
     global error_flag
+    print(input_object)
     if len(bpy.data.actions) > 0:
        for act_single in bpy.data.actions:
            if not re.search(input_object, act_single.name):
                 act_single.use_fake_user = False
                 print ('Action:',act_single.name,'not match, removed')
-                error_flag=1
 
 bpy.context.view_layer.objects.active = bpy.context.scene.objects[object_sel]
 clean_action(object_sel)
 
-if ('object_sel' in locals()) and (error_flag == 0):
+if ('object_sel' in locals()):
     print('Target object:',object_sel)
     convert(object_sel)
-elif (error_flag == 1):
-    print('Error:Action unmatch')
 else:
     print('Error:Target does not exist')
 
