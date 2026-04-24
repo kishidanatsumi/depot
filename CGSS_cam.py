@@ -7,13 +7,27 @@ from scipy.spatial.transform import Rotation as rot
 
 #input_json = sys.argv[1]
 input_json='./Hi_Fi_vertical_Camera.json'
+if not os.path.exists(input_json):
+        print("don't exist")
+        input()
+else:
+        split=os.path.splitext(os.path.basename(input_json))
+        out_name=split[0]
 
-#0=30fps,1=60fps
-hi_fps=0
+
+global hi_fps
+global frame_len
+global rip_list
+
 #0=关键帧,1=逐帧
 full_frame=0
 
-global frame_len
+#0=30fps,1=60fps
+hi_fps=0
+
+mouth_dic = {0: 'にやり', 1: 'あ', 2: 'い', 3: 'う', 4: 'え', 5: 'お', 6: 'にやり', 7: 'にやり', 8: 'ワ', 10: 'ワ'}
+eyel_dic = {10: 'ウィンク２', 11: 'ウィンク', 2: 'ウィンク'}
+eyer_dic = {10: 'ウィンク２右', 11: 'ウィンク右', 2: 'ウィンク右'}
 
 def rot_cal(pos,tgt,rot_in):
         front = [0,0,1]
@@ -35,8 +49,6 @@ def rot_cal(pos,tgt,rot_in):
                 y=y+360
 
         return [x,y+180,-rot_in]
-
-
 
 def bezier(frame_in):
         #[frame,value,curve,interpolateType,bezier]
@@ -134,11 +146,180 @@ def bezier(frame_in):
                         exit(1)
         return frame_out
 
+
+def parse_rip(rip_keys,mouth_keys=[]):
+        rip_list=[]
+        for i,key in enumerate(rip_keys):
+                write_true=1
+                frame=key["frame"]
+                if (len(mouth_keys)>1):
+                        for j,dat in enumerate(mouth_keys) :
+                                if ( frame <= dat["frame"] ):
+                                        #print(frame,mouth_keys[i-1]["attribute"])
+                                        if (mouth_keys[j-1]["attribute"]==65536):
+                                                write_true=0
+                                        elif (mouth_keys[j-1]["attribute"]==0):
+                                                write_true=1
+                                        else :
+                                                print("attribute=",mouth_keys[j-1]["attribute"])
+                                                write_true=1
+                                        break
+
+                if (hi_fps != 1):
+                        frame=int(frame/2)
+                if ( key["vowel"] in mouth_dic) and (write_true==1):
+                        value=mouth_dic[key["vowel"]]
+                else:
+                        value="bar"
+                
+                if ( i == 0 ):
+                        value_prev="bar"
+                        rip_list.append([frame,value,1.0])
+                elif ( value != value_prev ):
+                        if (value_prev == "い"):
+                                rip_list.append([frame,value_prev,1.0])    
+                                rip_list.append([frame+1,value_prev,0.0])
+                        else:
+                                rip_list.append([frame,value_prev,1.0])    
+                                rip_list.append([frame+2,value_prev,0.0])
+                        
+                        if (value == "い"):
+                                rip_list.append([frame,value,0.0])
+                                rip_list.append([frame+1,value,1.0])
+                        else:
+                                rip_list.append([frame,value,0.0])
+                                rip_list.append([frame+2,value,1.0])
+                value_prev=value
+        return rip_list
+
+def parse_eye(eye_keys):
+        eyer_list=eyel_list=[]
+        for i,key in enumerate(eye_keys):
+                frame=key["frame"]
+                if (hi_fps != 1):
+                        frame=int(frame/2)
+                     
+                if ( key["eyeRFlag"] in eyer_dic):
+                        eyer=eyer_dic[key["eyeRFlag"]]
+                else:
+                        eyer="foo"+str(key["eyeRFlag"])
+                        
+                if ( key["eyeLFlag"] in eyel_dic):
+                        eyel=eyel_dic[key["eyeLFlag"]]
+                else:
+                        eyel="foo"+str(key["eyeLFlag"])
+                if ( i == 0 ):
+                        eyer_prev="bar"
+                        eyel_prev="bar"
+                        eyer_list.append([frame,eyer,1])
+                        eyel_list.append([frame,eyel,1])
+                        
+                else:
+                        if ( eyer_prev != eyer ):
+                                eyer_list.append([frame,eyer_prev,1.0])
+                                eyer_list.append([frame+2,eyer_prev,0.0])
+                        
+                                eyer_list.append([frame,eyer,0.0])          
+                                eyer_list.append([frame+2,eyer,1.0])
+                        
+                        if ( eyel_prev != eyel ):
+                                eyel_list.append([frame,eyel_prev,1.0])
+                                eyel_list.append([frame+2,eyel_prev,0.0])
+                        
+                                eyel_list.append([frame,eyel,0.0])          
+                                eyel_list.append([frame+2,eyel,1.0])
+
+                eyer_prev=eyer
+                eyel_prev=eyel 
+        return eyer_list,eyel_list
+
+def write_facial(f_path,list_group):
+        with open(f_path, "w",encoding='utf-8') as outfile:
+                length=0
+                out=""
+                for i in list_group:
+                        length+=len(i)
+                        for data in i:
+                                out=out+data[1]+','+str(data[0])+','+str(data[2])+"\n"
+                outfile.write('version:,2\n')
+                outfile.write('modelname:,foobar\n')
+                outfile.write('boneframe_ct:,0\n')
+                outfile.write('morphframe_ct:,'+str(length)+'\n')
+                outfile.write('morph_name,frame_num,value\n')
+                outfile.write(out)
+                outfile.write('camframe_ct:,0\n')
+                outfile.write('lightframe_ct:,0\n')
+                outfile.write('shadowframe_ct:,0\n')
+                outfile.write('ik/dispframe_ct:,0\n')
+        print("Output:",f_path)
+
+
+
 with open(input_json, encoding='utf-8') as infile:
     data = json.load(infile)
-        
+
+
 print("Info: input file is",os.path.basename(input_json))
 
+#pos
+off_name=list(data["formationOffsetSet"])
+for position in off_name:
+        off_list=[]
+        out=""
+        pos_dat=data["formationOffsetSet"][position]["thisList"]
+        if ( len(pos_dat) > 1):
+                with open(out_name+"_pos_"+position+".txt", "w",encoding='utf-8') as outfile:
+                        outfile.write('version:,2\n')
+                        outfile.write('modelname:,foobar\n')
+                        outfile.write('boneframe_ct:,'+str(len(pos_dat)*2-1)+'\n')
+                        outfile.write('bone_name,frame_num,Xpos,Ypos,Zpos,Xrot,Yrot,Zrot,phys_disable,interp_x_ax,interp_x_ay,interp_x_bx,interp_x_by,interp_y_ax,interp_y_ay,interp_y_bx,interp_y_by,interp_z_ax,interp_z_ay,interp_z_bx,interp_z_by,interp_r_ax,interp_r_ay,interp_r_bx,interp_r_by\n')
+                        for i in range(0,len(pos_dat)):
+                                frame=pos_dat[i]["frame"]
+                                if ( hi_fps != 1):
+                                        frame=int(frame/2)
+                                if ( i != 0 ):
+                                        outfile.write('全ての親'+','+str(frame-1)+','+str(-pos_dat[i-1]["posXZ"]["x"]*12.5)+','+str(pos_dat[i-1]["posY"]*12.5)+','+str(-pos_dat[i-1]["posXZ"]["y"]*12.5)+',0,'+str(pos_dat[i-1]["rotY"])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n') 
+
+                                outfile.write('全ての親'+','+str(frame)+','+str(-pos_dat[i]["posXZ"]["x"]*12.5)+','+str(pos_dat[i]["posY"]*12.5)+','+str(-pos_dat[i]["posXZ"]["y"]*12.5)+',0,'+str(pos_dat[i]["rotY"])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n') 
+                        outfile.write('morphframe_ct:,0\n')
+                        outfile.write('camframe_ct:,0\n')
+                        outfile.write('lightframe_ct:,0\n')
+                        outfile.write('shadowframe_ct:,0\n')
+                        outfile.write('ik/dispframe_ct:,0\n')
+                print("Output:",out_name+"_pos_"+position+".txt")
+
+#facial
+#rip_keys = data["ripSyncKeys"]["thisList"]
+#eye_keys = data["facial1Set"]["eyeKeys"]["thisList"]
+mouth_keys = data["facial1Set"]["mouthKeys"]["thisList"]
+
+eyer_list,eyel_list=parse_eye(data["facial1Set"]["eyeKeys"]["thisList"])
+rip_list_full=parse_rip(data["ripSyncKeys"]["thisList"])
+write_facial(out_name+"_mouth.txt",[rip_list_full])
+
+
+rip_list=parse_rip(data["ripSyncKeys"]["thisList"],data["facial1Set"]["mouthKeys"]["thisList"])
+write_facial(out_name+"_facial_main.txt",[eyer_list,eyel_list,rip_list])
+
+
+if (len(data["other4FacialArray"]) != 0 ):
+        for i,sdata in enumerate(data["other4FacialArray"]):
+                eyer_list,eyel_list=parse_eye(sdata["eyeKeys"]["thisList"])
+                rip_list=parse_rip(data["ripSyncKeys"]["thisList"],sdata["mouthKeys"]["thisList"])
+                if (len(eyer_list)!=0) or (len(eyel_list)!=0):
+                        write_facial(out_name+"_facial_other_"+str(i)+".txt",[eyer_list,eyel_list,rip_list])
+
+
+
+sys.exit()
+
+
+
+
+
+
+
+#cam
 pos_keys = data["cameraPosKeys"]["thisList"]
 lookat_keys = data["cameraLookAtKeys"]["thisList"]
 roll_keys = data["cameraRollKeys"]["thisList"]
@@ -240,7 +421,7 @@ fov_frame=bezier(fov_list)
 key_frame=sorted(set(key_frame))
 key_frame.pop()
 #导出动作txt
-with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
+with open(out_name+"_cam.txt", "w",encoding='utf-8') as outfile:
         outfile.write('version:,2\n')
         outfile.write('modelname:,カメラ・照明\n')
         outfile.write('boneframe_ct:,0\n')
@@ -300,3 +481,4 @@ with open(os.path.basename(input_json)+".txt", "w",encoding='utf-8') as outfile:
         outfile.write('shadowframe_ct:,0\n')
         outfile.write('ik/dispframe_ct:,0\n')
 print("Info: output txt as",os.path.basename(input_json)+".txt")
+
