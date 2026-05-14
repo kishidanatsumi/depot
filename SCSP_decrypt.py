@@ -5,6 +5,7 @@ import re
 
 input_path=os.listdir("./")
 print(input_path)
+os.mkdir("./out/")
 for input_file in input_path:
     if ( os.path.isfile(input_file)  ):
         output_file="out_"+input_file+".unity3d"
@@ -14,7 +15,7 @@ for input_file in input_path:
                 f.seek(0)
                 data=f.read()[4:]
                 f.close()
-                with open(output_file,'w+b') as o:
+                with open("./out/"+output_file,'w+b') as o:
                     o.write(data)
                     o.close()
             else:
