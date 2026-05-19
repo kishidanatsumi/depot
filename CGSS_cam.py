@@ -6,7 +6,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation as rot
 
 #input_json = sys.argv[1]
-input_json='./Hi_Fi_vertical_Camera.json'
+input_json='./Palette_Camera.json'
 if not os.path.exists(input_json):
         print("don't exist")
         input()
@@ -261,7 +261,7 @@ with open(input_json, encoding='utf-8') as infile:
 
 print("Info: input file is",os.path.basename(input_json))
 
-#pos
+#pos txt
 off_name=list(data["formationOffsetSet"])
 for position in off_name:
         off_list=[]
@@ -278,9 +278,9 @@ for position in off_name:
                                 if ( hi_fps != 1):
                                         frame=int(frame/2)
                                 if ( i != 0 ):
-                                        outfile.write('全ての親'+','+str(frame-1)+','+str(-pos_dat[i-1]["posXZ"]["x"]*12.5)+','+str(pos_dat[i-1]["posY"]*12.5)+','+str(-pos_dat[i-1]["posXZ"]["y"]*12.5)+',0,'+str(pos_dat[i-1]["rotY"])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n') 
+                                        outfile.write('センター'+','+str(frame-1)+','+str(-pos_dat[i-1]["posXZ"]["x"]*12.5)+','+str(pos_dat[i-1]["posY"]*12.5)+','+str(-pos_dat[i-1]["posXZ"]["y"]*12.5)+',0,'+str(-pos_dat[i-1]["rotY"])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n') 
 
-                                outfile.write('全ての親'+','+str(frame)+','+str(-pos_dat[i]["posXZ"]["x"]*12.5)+','+str(pos_dat[i]["posY"]*12.5)+','+str(-pos_dat[i]["posXZ"]["y"]*12.5)+',0,'+str(pos_dat[i]["rotY"])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n') 
+                                outfile.write('センター'+','+str(frame)+','+str(-pos_dat[i]["posXZ"]["x"]*12.5)+','+str(pos_dat[i]["posY"]*12.5)+','+str(-pos_dat[i]["posXZ"]["y"]*12.5)+',0,'+str(-pos_dat[i]["rotY"])+',0,False,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127\n') 
                         outfile.write('morphframe_ct:,0\n')
                         outfile.write('camframe_ct:,0\n')
                         outfile.write('lightframe_ct:,0\n')
@@ -308,16 +308,6 @@ if (len(data["other4FacialArray"]) != 0 ):
                 rip_list=parse_rip(data["ripSyncKeys"]["thisList"],sdata["mouthKeys"]["thisList"])
                 if (len(eyer_list)!=0) or (len(eyel_list)!=0):
                         write_facial(out_name+"_facial_other_"+str(i)+".txt",[eyer_list,eyel_list,rip_list])
-
-
-
-sys.exit()
-
-
-
-
-
-
 
 #cam
 pos_keys = data["cameraPosKeys"]["thisList"]
@@ -353,8 +343,7 @@ for key in pos_keys:
                 for i in range(0,len(key["bezierPoints"])):
                         bezierx_list.append(key["bezierPoints"][i]["x"])
                         beziery_list.append(key["bezierPoints"][i]["y"])
-                        bezierz_list.append(key["bezierPoints"][i]["z"])
-
+                        
 #[frame,value,curve data,inerpolateType,bezier]
         if key["setType"]==2:
                 #用offset
@@ -392,7 +381,6 @@ for key in lookat_keys:
         lkatz_list.append([key["frame"],key["offset"]["z"],key["curve"]["m_Curve"],key["interpolateType"],bezierz_list])
 
 
-
 for key in roll_keys:
         key_frame.append(key["frame"])
         roll_list.append([key["frame"],key["degree"],key["curve"]["m_Curve"],key["interpolateType"],[]])
@@ -403,24 +391,33 @@ for key in fov_keys:
 
 print("Processing:posX")
 posx_frame=bezier(posx_list)
+posx_frame.append(posx_frame[-1])
 print("Processing:posY")
 posy_frame=bezier(posy_list)
+posy_frame.append(posy_frame[-1])
 print("Processing:posYabs")
 posy_abs_frame=bezier(posy_abs_list)
+posy_abs_frame.append(posy_abs_frame[-1])
 print("Processing:posZ")
 posz_frame=bezier(posz_list)
+posz_frame.append(posz_frame[-1])
 print("Processing:lkat")
 lkatx_frame=bezier(lkatx_list)
+lkatx_frame.append(lkatx_frame[-1])
 lkaty_frame=bezier(lkaty_list)
+lkaty_frame.append(lkaty_frame[-1])
 lkatz_frame=bezier(lkatz_list)
+lkatz_frame.append(lkatz_frame[-1])
 print("Processing:roll")
 roll_frame=bezier(roll_list)
+roll_frame.append(roll_frame[-1])
 print("Processing:fov")
 fov_frame=bezier(fov_list)
+fov_frame.append(fov_frame[-1])
 
 key_frame=sorted(set(key_frame))
-key_frame.pop()
-#导出动作txt
+print(key_frame)
+#camera txt
 with open(out_name+"_cam.txt", "w",encoding='utf-8') as outfile:
         outfile.write('version:,2\n')
         outfile.write('modelname:,カメラ・照明\n')
@@ -469,7 +466,6 @@ with open(out_name+"_cam.txt", "w",encoding='utf-8') as outfile:
                         for i in key_frame:
                                 rotate=rot_cal(np.array([posx_frame[i],posy_frame[i],posz_frame[i]]),np.array([lkatx_frame[i],lkaty_frame[i],lkatz_frame[i]]),roll_frame[i])
                                 distance=-1.25*np.linalg.norm(np.array([lkatx_frame[i]-posx_frame[i],lkaty_frame[i]-posy_frame[i],lkatz_frame[i]-posz_frame[i]]))
-                                #fov=str(30)
                                 distance=0
                                 fov=str(int(fov_frame[i]))
                                 if i-1 in key_frame:
