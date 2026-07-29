@@ -1,5 +1,4 @@
-import struct
-import math
+import math,os,csv,array
 # Load VMD file
 from scipy.spatial.transform import Rotation as rot
 
@@ -16,13 +15,11 @@ def decode(name_raw):
             return
     return name
 
-def print_info(in_data):
-        return
     
 
 #struct.unpack('f',inbytes)
 #IEEE 754 binary32
-def float_from_bytes(inbytes):
+def bytes_to_float(inbytes):
     bits = 0
     #int_from bytes
     for i, b in enumerate(inbytes):
@@ -39,147 +36,177 @@ def float_from_bytes(inbytes):
         return sign*0.0
     return sign*pow(2.0,exponent-127)*mantissa
 
-def int_from_bytes(inbytes):
+def float_to_bytes(in_float):
+    byte_array = array.array('f', [in_float])
+    return byte_array.tobytes()
+
+float_num = 3.14
+bytes_data = float_to_bytes(float_num)
+print(bytes_data)
+
+def bytes_to_int(inbytes):
     return int.from_bytes(inbytes, byteorder='little', signed=False)
 
-def quaternion_to_euler(quat):
-	"""
-	Convert WXYZ quaternion to XYZ euler angles, using the same method as MikuMikuDance.
-	Massive thanks and credit to "Isometric" for helping me discover the transformation method used in mmd!!!!
-	
-	:param quat: 4x float, W X Y Z quaternion
-	:return: 3x float, X Y Z angle in degrees
-	"""
-	w, x, y, z = quat
-	
-	# pitch (y-axis rotation)
-	sinr_cosp = 2 * ((w * y) + (x * z))
-	cosr_cosp = 1 - (2 * ((x ** 2) + (y ** 2)))
-	pitch = -math.atan2(sinr_cosp, cosr_cosp)
-	
-	# yaw (z-axis rotation)
-	siny_cosp = 2 * ((-w * z) - (x * y))
-	cosy_cosp = 1 - (2 * ((x ** 2) + (z ** 2)))
-	yaw = math.atan2(siny_cosp, cosy_cosp)
-	
-	# roll (x-axis rotation)
-	sinp = 2 * ((z * y) - (w * x))
-	if sinp >= 1.0:
-		roll = -math.pi / 2  # use 90 degrees if out of range
-	elif sinp <= -1.0:
-		roll = math.pi / 2
-	else:
-		roll = -math.asin(sinp)
-	
-	# fixing the x rotation, part 1
-	if x ** 2 > 0.5 or w < 0:
-		if x < 0:
-			roll = -math.pi - roll
-		else:
-			roll = math.pi * math.copysign(1, w) - roll
-	
-	# fixing the x rotation, part 2
-	if roll > (math.pi / 2):
-		roll = math.pi - roll
-	elif roll < -(math.pi / 2):
-		roll = -math.pi - roll
-	
-	roll = math.degrees(roll)
-	pitch = math.degrees(pitch)
-	yaw = math.degrees(yaw)
-	
-	return roll, pitch, yaw
+def int_to_bytes(in_num):
+    out_bytes = []
+    for _ in range(4):
+        out_bytes.append(in_num & 0xFF)
+        in_num >>= 8
+    #print(bytes(out_bytes))
+    return bytes(out_bytes)
 
+def pad(pad_data,width):
+    if width < len(pad_data):
+        print("error")
+    elif width == len(pad_data):
+        return pad_data
+    else:
+        return pad_data+b'\x00'*(width-len(pad_data))
 
-'''
+def vmd_to_txt(infile):
+        print("input file is:",infile)
+        with open(os.path.splitext(os.path.basename(infile))[0]+".csv", "w",encoding='utf-8') as out_file:
+            out_writer=csv.writer(out_file, delimiter=',')
+            with open(infile, 'rb') as f:
+                data = f.read()
+            print(data[0:50])
+            model_name_raw=data[30:50].split(b'\x00')[0]
+            print(data[30:50])
+            print(model_name_raw)
+            model=decode(model_name_raw)
+            print("Model:",model)
+            data=data[50:]
+            print("Bone data")
+            bone_list=[]
+            frame=int.from_bytes(data[0:4], byteorder='little', signed=False)
+            print(data[0:4],"Frame:",frame)
+            data=data[4:]
+            if (frame != 0):
+                    for i in range(frame):
+                            block=data[111*i:111*(i+1)]
+                            bone_name=decode(block[0:15].split(b'\x00')[0])
+                            time=bytes_to_int(block[15:19])
+                            #position
+                            x=bytes_to_float(block[19:23])
+                            y=bytes_to_float(block[23:27])
+                            z=bytes_to_float(block[27:31])
+                            #rotation
+                            xr=bytes_to_float(block[31:35])
+                            yr=bytes_to_float(block[35:39])
+                            zr=bytes_to_float(block[39:43])
+                            wr=bytes_to_float(block[43:47])
+                            #interpolate curve
+                            int_x_bl_x=bytes_to_int(block[47:48])
+                            int_x_bl_y=bytes_to_int(block[51:52])
+                            int_x_tr_x=bytes_to_int(block[55:56])
+                            int_x_tr_y=bytes_to_int(block[59:60])
+                            int_y_bl_x=bytes_to_int(block[63:64])
+                            int_y_bl_y=bytes_to_int(block[67:68])
+                            int_y_tr_x=bytes_to_int(block[71:72])
+                            int_y_tr_y=bytes_to_int(block[75:76])
+                            int_z_bl_x=bytes_to_int(block[79:80])
+                            int_z_bl_y=bytes_to_int(block[83:84])
+                            int_z_tr_x=bytes_to_int(block[87:88])
+                            int_z_tr_y=bytes_to_int(block[91:92])
+                            int_rot_bl_x=bytes_to_int(block[95:96])
+                            int_rot_bl_y=bytes_to_int(block[99:100])
+                            int_rot_tr_x=bytes_to_int(block[103:104])
+                            int_rot_tr_y=bytes_to_int(block[107:108])
+                            bone_data=[bone_name,time,x,y,z,xr,yr,zr,wr,
+                                  int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
+                                  int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
+                                  int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
+                                  int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y]
+                            bone_list.append(bone_data)
+                            
+                            #print(int_data)
+                            if (xr==0) and (yr==0) and (zr==0):
+                                    continue
+            
+                            #print(bone_data)
+                            in_rot=rot.from_quat([xr,yr,zr,wr])
+                            rot_x,rot_y,rot_z=in_rot.as_euler('zxy',degrees=True)
+                            #print([-x,y,-z])
+                    data=data[111*(i+1):]
 
+        
+            print("Facial data")
+            facial_list=[]
+            frame=int.from_bytes(data[0:4], byteorder='little', signed=False)
+            
+            #print(data[0:4],"Frame:",frame)
+            data=data[4:]
+            if (frame != 0):
+                    for i in range(frame):
+                            block=data[23*i:23*(i+1)]
+                            facial_name=decode(block[0:15].split(b'\x00')[0])
+                            time=bytes_to_int(block[15:19])
+                            #print(block[0:15],facial_name)
+                            weight=bytes_to_float(block[19:23])
+                            facial_data=[facial_name,time,weight]
+                            facial_list.append(facial_data)
+                    data=data[23*(i+1):]
+            '''
+            
+            print("other data")
+            frame=int.from_bytes(data[0:4], byteorder='little', signed=False)
+            data=data[4:]
+            print("Frame:",frame)
+            print(len(bone_list))
+            print(len(facial_list))
+            print(facial_list)
+            '''
+            #write csv
 
+            out_writer.writerow(["name",model])
+            if len(facial_list) > 0 :
+                for facial in facial_list:
+                    out_writer.writerow(["facial"]+facial) 
+            if len(bone_list) > 0 :
+                for bone in bone_list:
+                    out_writer.writerow(["bone"]+bone) 
+        
+        
+        return [model,bone_list,facial_list]
 
+def txt_to_vmd(in_data):
+    '''
+    model:string
+    bone:list[bone_name,time,x,y,z,xr,yr,zr,wr
+                              int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
+                              int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
+                              int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
+                              int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y]
+    facial:list[facial_name,time,weight]
+    '''
+    #Header and model name
+    out_data=b'Vocaloid Motion Data 0002\x00\x00\x00\x00\x00'+pad(in_data[0].encode('shift-jis'),20)
+    #bone
+    out_data=out_data+int_to_bytes(len(in_data[1]))
+    #print(out_data)
+    for bone in in_data[1]:
+        out_data=out_data+pad(bone[0].encode('shift-jis'),15)+int_to_bytes(bone[1])+float_to_bytes(bone[2])+float_to_bytes(bone[3])+float_to_bytes(bone[4])+float_to_bytes(bone[5])+float_to_bytes(bone[6])+float_to_bytes(bone[7])+float_to_bytes(bone[8])
 
-xr  yr  zr  wr 
+        #Interpolate curve
+        for i in range(9,25):
+            out_data=out_data+int_to_bytes(bone[i])
+    #facial
+    for facial in in_data[2]:
+        out_data=out_data+pad(facial[0].encode('shift-jis'),15)+int_to_bytes(facial[1])+float_to_bytes(facial[2])
+    with open("out.vmd", "wb") as out_file:
+        out_file.write(out_data)
+  
+ 
 
-'''
+infile='test.vmd'
+if infile.endswith(".txt"):
+    print("txt to vmd")
+elif infile.endswith(".vmd"):
+    print("vmd to txt")
+else:
+    print("file is not txt or vmd, exit")
+    exit()
+vmd_data=vmd_to_txt(infile)
+txt_to_vmd(vmd_data)
 
-motion_file='test.vmd'
-print("input file is:",motion_file)
-with open(motion_file, 'rb') as f:
-        data = f.read()
-
-
-model_name_raw=data[30:50].split(b'\x00')[0]
-model=decode(model_name_raw)
-print("Model:",model)
-data=data[50:]
-print("motion data")
-#print(struct.unpack('I', raw[50:54])[0])
-frame=int.from_bytes(data[0:4], byteorder='little', signed=False)
-print("Frame:",frame)
-data=data[4:]
-if (frame != 0):
-        for i in range(frame):
-                block=data[111*i:111*(i+1)]
-                bone_name=decode(block[0:15].split(b'\x00')[0])
-                time=int_from_bytes(block[15:19])
-                #position
-                x=float_from_bytes(block[19:23])
-                y=float_from_bytes(block[23:27])
-                z=float_from_bytes(block[27:31])
-                #rotation
-                xr=float_from_bytes(block[31:35])
-                yr=float_from_bytes(block[35:39])
-                zr=float_from_bytes(block[39:43])
-                wr=float_from_bytes(block[43:47])
-                #interpolate curve
-                int_x_bl_x=int_from_bytes(block[47:48])
-                int_x_bl_y=int_from_bytes(block[51:52])
-                int_x_tr_x=int_from_bytes(block[55:56])
-                int_x_tr_y=int_from_bytes(block[59:60])
-                int_y_bl_x=int_from_bytes(block[63:64])
-                int_y_bl_y=int_from_bytes(block[67:68])
-                int_y_tr_x=int_from_bytes(block[71:72])
-                int_y_tr_y=int_from_bytes(block[75:76])
-                int_z_bl_x=int_from_bytes(block[79:80])
-                int_z_bl_y=int_from_bytes(block[83:84])
-                int_z_tr_x=int_from_bytes(block[87:88])
-                int_z_tr_y=int_from_bytes(block[91:92])
-                int_rot_bl_x=int_from_bytes(block[95:96])
-                int_rot_bl_y=int_from_bytes(block[99:100])
-                int_rot_tr_x=int_from_bytes(block[103:104])
-                int_rot_tr_y=int_from_bytes(block[107:108])
-                
-                bone_data=[bone_name,time,x,y,z,xr,yr,zr,
-                      int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
-                      int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
-                      int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
-                      int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y]
-
-                #print(int_data)
-                if (xr==0) and (yr==0) and (zr==0):
-                        continue
-
-                print(bone_data)
-                in_rot=rot.from_quat([xr,yr,zr,wr])
-                rot_x,rot_y,rot_z=in_rot.as_euler('zxy',degrees=True)
-                #print([-x,y,-z])
-        data=data[111*(i+1):]
-
-
-
-print("facial data")
-frame=int.from_bytes(data[0:4], byteorder='little', signed=False)
-print("Frame:",frame)
-data=data[4:]
-if (frame != 0):
-        for i in range(frame):
-                block=data[23*i:23*(i+1)]
-                facial_name=decode(block[0:15].split(b'\x00')[0])
-                time=int_from_bytes(block[15:19])
-                weight=float_from_bytes(block[19:23])
-                facial_data=[facial_name,time,weight]
-                print(facial_data)
-
-
-        data=data[23*(i+1):]
-
-print(data)
 
