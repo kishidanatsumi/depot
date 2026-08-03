@@ -76,7 +76,7 @@ def rot_cal(pos,tgt,rot_in):
         rotAxis=np.cross(forward,front)
         rotAxis=rotAxis/np.linalg.norm(rotAxis)
         dot=np.dot(forward,front)
-        rotAngle=np.acos(dot)
+        rotAngle=np.arccos(dot)
         result=rot.from_rotvec(rotAngle*rotAxis,degrees=False)
         z,x,y=result.as_euler(seq="zxy",degrees=True)
         return [-x+180,y,-rot_in+180]
