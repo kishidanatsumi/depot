@@ -13,6 +13,7 @@ time_x = [entry["time"] for entry in x_value]
 array_x = [entry["value"] for entry in x_value]
 time_z = [entry["time"] for entry in z_value]
 array_z = [entry["value"] for entry in z_value]
+print("x:",len(time_x),"z:",len(time_z))
 print("time_x:",len(time_x),"value_x:",len(array_x),"\ntime_z:",len(time_z),"value_z:",len(array_z))
 
 i = 1
@@ -20,7 +21,9 @@ z_pointer = 0
 
 #fix
 while (i < len(time_x)):
-    if (time_x[i] != time_z[i-z_pointer]):
+    if (time_x[i] < time_z[i-z_pointer]):
+        #print(i,z_pointer)
+        #print(time_x[i],time_z[i-z_pointer])
         z_pointer=z_pointer+1
         fix_value=(array_z[i-1]+array_z[i-1])/2
         array_z.insert(i-1,fix_value)
