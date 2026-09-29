@@ -97,8 +97,8 @@ def eye_write(input_json):
                     eye_data.append(["ウィンク右",frame+12,0.0])
                 elif ( prs_stat_r == 0 ):
                     if pst_stat_r == 1:
-                        eye_data.append(["ウィンク右２",frame,1.0])
-                        eye_data.append(["ウィンク右２",frame+4,0.0])
+                        eye_data.append(["ウィンク２右",frame,1.0])
+                        eye_data.append(["ウィンク２右",frame+4,0.0])
                     elif pst_stat_r == 2:
                         eye_data.append(["ウィンク右",frame,1.0])
                         eye_data.append(["ウィンク右",frame+4,0.0])
