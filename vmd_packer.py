@@ -2,13 +2,72 @@ import math,os,csv,array
 from scipy.spatial.transform import Rotation as rot
 
 class vmd:
-    def __init__(self,name,bone,facial,cam,light,what):
+    def __init__(self,name,bone,facial,cam,light,shadow,ik):
+        #name:string
         self.name=name
+        
+        #bone:list
+        '''
+        [0]骨骼名称 string
+        [1]时间 int
+        [2:4]x,y,z 位置 float
+        [5:8],x,y,z,w 四元数旋转 float
+        [9:24]:补间曲线
+        [9:12]"X移动"左下点x/y 右上点x/y float
+        [13:16]"Y移动"左下点x/y 右上点x/y float
+        [17:20]"Z移动"左下点x/y 右上点x/y float
+        [21:24]"旋转"左下点x/y 右上点x/y float
+        '''
         self.bone=bone
+        
+        #facial:list
+        '''
+        [0]表情名称 string
+        [1]时间 int
+        [2]权重(0.0-1.0) float
+        '''
         self.facial=facial
+
+        #camera:list
+        '''
+        [0]时间 int
+        [1]距离 float
+        [2:4]x,y,z 位置 float
+        [5:7],x,y,z 欧拉角旋转 float
+        [8:24]:补间曲线 
+        [8:11]"X移动"左下点x/y 右上点x/y float
+        [12:15]"Y移动"左下点x/y 右上点x/y float
+        [16:19]"Z移动"左下点x/y 右上点x/y float
+        [20:23]"旋转"左下点x/y 右上点x/y float
+        [24:27]"距离"左下点x/y 右上点x/y float
+        [28:31]"FOV"左下点x/y 右上点x/y float
+        [32:35]"FOV"左下点x/y 右上点x/y float
+        [36]FOV int
+        '''
         self.cam=cam
+
+        #light:list
+        '''
+        [0]时间 int
+        [1:3]照明RGB float
+        [4:6]照明XYZ float
+        '''
         self.light=light
-        self.what=what
+
+        #shadow:list
+        '''
+        [0]时间 int
+        [1]模式 int
+        [2]阴影范围 float
+        '''
+        self.shadow=shadow
+
+        '''
+        [0]时间 int
+        [1]模型表示 boolean
+        [2]IK列表 list [IK名称 string,IK启用 boolean]
+        '''
+        self.ik=ik
         
     def show(self):
         print("Model name:",self.name)
@@ -20,16 +79,6 @@ def decode(name_raw):
     except UnicodeDecodeError:
         print("No name decoded")
         return
-    '''
-    try:
-       name=name_raw.decode("utf-8")
-    except UnicodeDecodeError:
-        try:
-            name=name_raw.decode('shift-jis')
-        except UnicodeDecodeError:
-            print("No name decoded")
-            return
-    '''
     return name
 
 #struct.unpack('f',inbytes)
@@ -56,10 +105,6 @@ def float_to_bytes(in_float):
     byte_array = array.array('f', [in_float])
     return byte_array.tobytes()
 
-float_num = 3.14
-bytes_data = float_to_bytes(float_num)
-print(bytes_data)
-
 def bytes_to_int(inbytes):
     return int.from_bytes(inbytes, byteorder='little', signed=False)
 
@@ -76,7 +121,8 @@ def pad(pad_data,width):
         return pad_data+b'\x00'*(width-len(pad_data))
 
 def vmd_to_data(infile):
-    vmd_data=vmd("",[],[],[],[],[])
+    is_camera=0
+    vmd_data=vmd("",[],[],[],[],[],[])
     print("input file is:",infile)
     with open(os.path.splitext(os.path.basename(infile))[0]+".txt", "w",newline='',encoding='shift-jis') as out_file:
         out_writer=csv.writer(out_file, delimiter=',')
@@ -154,7 +200,7 @@ def vmd_to_data(infile):
             data=data[111*(i+1):]
 
         #facial
-        facial_frame=int.from_bytes(data[0:4], byteorder='little', signed=False)
+        facial_frame=bytes_to_int(data[0:4])
         data=data[4:]
         print("Facial frame:",facial_frame)
         facial_list=[]
@@ -170,7 +216,7 @@ def vmd_to_data(infile):
             data=data[23*(i+1):]
 
         #cam
-        cam_frame=int.from_bytes(data[0:4], byteorder='little', signed=False)
+        cam_frame=bytes_to_int(data[0:4])
         data=data[4:]
         print("Camera frame:",cam_frame)
         cam_list=[]
@@ -179,6 +225,7 @@ def vmd_to_data(infile):
                 pass
             for i in range(cam_frame):
                 block=data[61*i:61*(i+1)]
+                print(block)
                 time=bytes_to_int(block[0:4])
                 dist=bytes_to_float(block[4:8])
                 x=bytes_to_float(block[8:12])
@@ -187,14 +234,52 @@ def vmd_to_data(infile):
                 xr=bytes_to_float(block[20:24])
                 yr=bytes_to_float(block[24:28])
                 zr=bytes_to_float(block[28:32])
+                #interpolate curve
+                int_x_bl_x=bytes_to_int(block[32:33])
+                int_x_bl_y=bytes_to_int(block[33:34])
+                int_x_tr_x=bytes_to_int(block[34:35])
+                int_x_tr_y=bytes_to_int(block[35:36])
+                int_y_bl_x=bytes_to_int(block[36:37])
+                int_y_bl_y=bytes_to_int(block[37:38])
+                int_y_tr_x=bytes_to_int(block[38:39])
+                int_y_tr_y=bytes_to_int(block[39:40])
+                int_z_bl_x=bytes_to_int(block[40:41])
+                int_z_bl_y=bytes_to_int(block[41:42])
+                int_z_tr_x=bytes_to_int(block[42:43])
+                int_z_tr_y=bytes_to_int(block[43:44])
+                int_rot_bl_x=bytes_to_int(block[44:45])
+                int_rot_bl_y=bytes_to_int(block[45:46])
+                int_rot_tr_x=bytes_to_int(block[46:47])
+                int_rot_tr_y=bytes_to_int(block[47:48])
+                int_dis_bl_x=bytes_to_int(block[48:49])
+                int_dis_bl_y=bytes_to_int(block[49:50])
+                int_dis_tr_x=bytes_to_int(block[50:51])
+                int_dis_tr_y=bytes_to_int(block[51:52])
+                int_fov_bl_x=bytes_to_int(block[52:53])
+                int_fov_bl_y=bytes_to_int(block[53:54])
+                int_fov_tr_x=bytes_to_int(block[54:55])
+                int_fov_tr_y=bytes_to_int(block[55:56])
+                
                 fov=bytes_to_int(block[56:60])
-                curve=b'\x14k\x14k\x14k\x14k\x14k\x14k\x14k\x14k\x14k\x14k\x14k\x14k'
-                data=data[61*(i+1):]
                 #24 value curve
-                vmd_data.cam.append([time,dist,x,y,z,xr,yr,zr,20,107,20,107,20,107,20,107,20,107,20,107,20,107,20,107,20,107,20,107,20,107,20,107,fov])
+                vmd_data.cam.append([time,dist,x,y,z,xr,yr,zr,
+                              int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
+                              int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
+                              int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
+                              int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y,
+                              int_dis_bl_x,int_dis_bl_y,int_dis_tr_x,int_dis_tr_y,
+                              int_fov_bl_x,int_fov_bl_y,int_fov_tr_x,int_fov_tr_y,fov])
+                print([time,dist,x,y,z,xr,yr,zr,
+                              int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
+                              int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
+                              int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
+                              int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y,
+                              int_dis_bl_x,int_dis_bl_y,int_dis_tr_x,int_dis_tr_y,
+                              int_fov_bl_x,int_fov_bl_y,int_fov_tr_x,int_fov_tr_y,fov])
+                data=data[61*(i+1):]
 
         #light
-        light_frame=int.from_bytes(data[0:4], byteorder='little', signed=False)
+        light_frame=bytes_to_int(data[0:4])
         data=data[4:]
         print("Light frame:",light_frame)
         light_list=[]
@@ -211,41 +296,80 @@ def vmd_to_data(infile):
                 vmd_data.light.append([time,lightr,lightg,lightb,x,y,z])
                 data=data[28*(i+1):]
         
-        #what
-        what_frame=int.from_bytes(data[0:4], byteorder='little', signed=False)
+        #shadow
+        shadow_frame=bytes_to_int(data[0:4])
         data=data[4:]
-        print("what frame:",what_frame)
-        what_list=[]
-        if (what_frame != 0):
-            for i in range(what_frame):
+        print("shadow frame:",shadow_frame)
+        shadow_list=[]
+        if (shadow_frame != 0):
+            for i in range(shadow_frame):
                 block=data[13*i:13*(i+1)]
                 print(block)
                 time=bytes_to_int(block[0:4])
-                a=bytes_to_float(block[4:8])
-                b=bytes_to_float(block[8:12])
-                print(a,b)
+                mode=bytes_to_int(block[4:5])
+                
+                shadow_range=round(10000 - (bytes_to_float(block[5:13]) * 100000))
+                vmd_data.light.append([mode,shadow_range])
                 data=data[13*(i+1):]
+
+
+        #IK
+        ik_frame=bytes_to_int(data[0:4])
+        data=data[4:]
+        print("ik frame:",ik_frame)
+        if (ik_frame != 0):
+            for i in range(ik_frame):
+                time=bytes_to_int(data[0:4])
+                ap=bytes_to_int(data[4:5])
+                ik_number=bytes_to_int(data[5:9])
+                ik_block=[time,ap,[]]
+                data=data[9:]
+                for i in range(ik_number):
+                    name=decode(data[0:20].split(b'\x00')[0])
+                    enable=bytes_to_int(data[20:21])
+                    ik_block[2].append([name,enable])
+                    data=data[21:]
+                vmd_data.ik.append(ik_block)
+            print(vmd_data.ik)
+
+                
         print("Rest data is",data)
+
+        
     return vmd_data
             
-def data_to_txt(in_data):
-        out_writer.writerow(["model_name",model])
-        if len(facial_list) > 0 :
-            for i in facial_list:
+def data_to_txt(out_file,name="",bone=[],facial=[],cam=[],light=[],shadow=[],ik=[]):
+    with open(out_file, 'w', newline='') as csvfile:
+        out_writer = csv.writer(csvfile, delimiter=',')
+        if len(facial) > 0 :
+            for i in data:
                 out_writer.writerow(["facial_frame"]+i) 
-        if len(bone_list) > 0 :
-            for i in bone_list:
+        if len(bone) > 0 :
+            for i in bone:
                 out_writer.writerow(["bone_frame"]+i) 
-        if len(cam_list) > 0 :
-            for i in cam_list:
+        if len(cam) > 0 :
+            for i in cam:
+                print(i)
                 out_writer.writerow(["camera_example","name","time","dist","x","y","z","xr","yr","zr","20","108","20","108","20","108","20","108","20","108","20","108","20","108","20","108","20","108","20","108","20","108","20","108","fov"]) 
-                out_writer.writerow(["camera_frame"]+i) 
-        if len(light_list) > 0 :
-            for i in light_list:
+                out_writer.writerow(["camera_frame"]+i)
+        if len(light) > 0 :
+            for i in light:
                 out_writer.writerow(["light_example","time","lightR","lightG","lightB","x","y","z"]) 
                 out_writer.writerow(["light_frame"]+i) 
+        if len(shadow) > 0 :
+            for i in shadow:
+                out_writer.writerow(["shadow_example","time","mode","range"]) 
+                out_writer.writerow(["shadow_frame"]+i) 
+        if len(ik) > 0 :
+            for i in ik:
+                out_writer.writerow(["ik_example","time","model_ap","ik list"])
+                ik_bone=""
+                for j in ik_data[2]:
+                    ik_bone=ik_bone+str(j)
+                out_writer.writerow(["ik_frame"]+ik_bone )
 
-        return
+            
+    return
 
 def txt_to_data(in_txt):
     name=""
@@ -268,19 +392,9 @@ def txt_to_data(in_txt):
                 light_data.append(row[1:])
             else:
                 pass
-    return(model_name,bone_data,facial_data,cam_data,light_data)
+    return(model_name,bone_data,facial_data,cam_data,light_data,shadow_data)
 
-def data_to_vmd(name="NA",bone_data=[],facial_data=[],cam_data=[],light_data=[],what_data=[]):
-
-    '''
-    model:string
-    bone:list[bone_name,time,x,y,z,xr,yr,zr,wr
-                              int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
-                              int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
-                              int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
-                              int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y]
-    facial:list[facial_name,time,weight]
-    '''
+def data_to_vmd(name="NA",bone_data=[],facial_data=[],cam_data=[],light_data=[],shadow_data=[],ik_data=[]):
     #Header
     out_data=b'Vocaloid Motion Data 0002\x00\x00\x00\x00\x00'
     #model name
@@ -309,9 +423,6 @@ def data_to_vmd(name="NA",bone_data=[],facial_data=[],cam_data=[],light_data=[],
             out_data=out_data+int_to_bytes(cam[i],1)
         #FOV
         out_data=out_data+int_to_bytes(cam[32],1)
-
-    #what
-    out_data=out_data+int_to_bytes(len(what_data))
     
     #light
     out_data=out_data+int_to_bytes(len(light_data))
@@ -321,10 +432,25 @@ def data_to_vmd(name="NA",bone_data=[],facial_data=[],cam_data=[],light_data=[],
         for i in range(1,7):
             out_data=out_data+float_to_bytes(light[i])
             
+    #shadow
+    out_data=out_data+int_to_bytes(len(shadow_data))
+
+    #ik
+    out_data=out_data+int_to_bytes(len(ik_data))
+    for ik in ik_data:
+        #time
+        out_data=out_data+int_to_bytes(ik[0])
+        #ap
+        out_data=out_data+int_to_bytes(ik[1],1)
+        out_data=out_data+int_to_bytes(len(ik[2]))
+        for ik_block in ik[2]:
+            out_data=out_data+pad(ik_block[0].encode('shift-jis'),20)+int_to_bytes(ik_block[1],1)
+        
+        
     with open("out.vmd", "wb") as out_file:
         out_file.write(out_data)
   
-infile='camera.vmd'
+infile='cam.vmd'
 if infile.endswith(".txt"):
     print("txt to vmd")
 elif infile.endswith(".vmd"):
@@ -333,7 +459,6 @@ else:
     print("file is not txt or vmd, exit")
     exit()
 vmd_data=vmd_to_data(infile)
-#vmd_data=txt_to_data("camera.txt")
-vmd_data.show()
-data_to_vmd(name=vmd_data.name,bone_data=vmd_data.bone,facial_data=vmd_data.facial,cam_data=vmd_data.cam,light_data=vmd_data.light)
-
+data_to_vmd(name=vmd_data.name,bone_data=vmd_data.bone,facial_data=vmd_data.facial,cam_data=vmd_data.cam,light_data=vmd_data.light,ik_data=vmd_data.ik)
+#data_to_txt(out_file="./out.txt",name=vmd_data.name,bone=vmd_data.bone,facial=vmd_data.facial,cam=vmd_data.cam,shadow=vmd_data.shadow,light=vmd_data.light,ik=vmd_data.ik)
+data_to_txt(out_file="./out.txt",name=vmd_data.name,bone=vmd_data.bone,facial=vmd_data.facial,cam=vmd_data.cam,shadow=vmd_data.shadow,light=vmd_data.light,ik=vmd_data.ik)
