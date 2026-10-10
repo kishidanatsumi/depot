@@ -1,6 +1,6 @@
 import math,os,csv,array
 from scipy.spatial.transform import Rotation as rot
-
+debug=1
 class vmd:
     def __init__(self,name,bone,facial,cam,light,shadow,ik):
         #name:string
@@ -72,6 +72,15 @@ class vmd:
     def show(self):
         print("Model name:",self.name)
 
+def print_byte(in_byte):
+    out=""
+    for i in in_byte:
+        if len(hex(i))==3:
+            out=out+"0"+hex(i)[2:]+" "
+        else:
+            out=out+hex(i)[2:]+" "
+    print(out)
+        
 def decode(name_raw):
     #print(model_name_raw)
     try:
@@ -121,22 +130,27 @@ def pad(pad_data,width):
         return pad_data+b'\x00'*(width-len(pad_data))
 
 def vmd_to_data(infile):
+    print("start vmd to data")
     is_camera=0
     vmd_data=vmd("",[],[],[],[],[],[])
-    print("input file is:",infile)
+    print("input file:",infile)
     with open(os.path.splitext(os.path.basename(infile))[0]+".txt", "w",newline='',encoding='shift-jis') as out_file:
         out_writer=csv.writer(out_file, delimiter=',')
         with open(infile, 'rb') as f:
             data = f.read()
-        #header
-        #print(data[0:30])
+        if debug==1:
+            print("Debug - Data")
+            print_byte(data)
+        if debug==1:
+            print("Debug - Header")
+            print_byte(data[0:30])
 
 
         #model name
-        model_name_raw=data[30:50].split(b'\x00')[0]
-        #print(data[30:50])
-        #print(model_name_raw)
-        vmd_data.name=decode(model_name_raw)
+        if debug==1:
+            print("Debug - Model name")
+            print_byte(data[30:50])
+        vmd_data.name=decode(data[30:50].split(b'\x00')[0])
         print("Model:",vmd_data.name)
         data=data[50:]
         
@@ -148,7 +162,8 @@ def vmd_to_data(infile):
         if (bone_frame != 0):
             for i in range(bone_frame):
                         block=data[111*i:111*(i+1)]
-                        bone_name=decode(block[0:15].split(b'\x00')[0])
+
+                        name=decode(block[0:15].split(b'\x00')[0])
                         time=bytes_to_int(block[15:19])
                         #position
                         x=bytes_to_float(block[19:23])
@@ -176,27 +191,26 @@ def vmd_to_data(infile):
                         int_rot_bl_y=bytes_to_int(block[99:100])
                         int_rot_tr_x=bytes_to_int(block[103:104])
                         int_rot_tr_y=bytes_to_int(block[107:108])
-                        '''
-                        bone_data=[bone_name,time,x,y,z,xr,yr,zr,wr,
-                              int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
-                              int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
-                              int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
-                              int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y]
-                        '''
-                        vmd_data.bone.append([bone_name,time,x,y,z,xr,yr,zr,wr,
+
+                        vmd_data.bone.append([name,time,x,y,z,xr,yr,zr,wr,
                               int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
                               int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
                               int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
                               int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y])
+                        print(i,"- Bone",name,"on frame",time)
                         
-                        #print(int_data)
-                        if (xr==0) and (yr==0) and (zr==0):
-                                continue
-        
-                        #print(bone_data)
+                        if debug==1:
+                            print_byte(block)
+                            print([name,time,x,y,z,xr,yr,zr,wr,
+                              int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
+                              int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
+                              int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
+                              int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y])
+                            
                         #in_rot=rot.from_quat([xr,yr,zr,wr])
                         #rot_x,rot_y,rot_z=in_rot.as_euler('zxy',degrees=True)
                         #print([-x,y,-z])
+                            
             data=data[111*(i+1):]
 
         #facial
@@ -207,30 +221,32 @@ def vmd_to_data(infile):
         if (facial_frame != 0):
             for i in range(facial_frame):
                     block=data[23*i:23*(i+1)]
-                    facial_name=decode(block[0:15].split(b'\x00')[0])
+                    name=decode(block[0:15].split(b'\x00')[0])
                     time=bytes_to_int(block[15:19])
                     #print(block[0:15],facial_name)
                     weight=bytes_to_float(block[19:23])
                     #facial_data=[facial_name,time,weight]
-                    vmd_data.facial.append([facial_name,time,weight])
+                    vmd_data.facial.append([name,time,weight])
             data=data[23*(i+1):]
-
+            if debug==1:
+                    print(i,"- Facial",name,"on frame",time)
+                    print_byte(block)
         #cam
         cam_frame=bytes_to_int(data[0:4])
         data=data[4:]
         print("Camera frame:",cam_frame)
         cam_list=[]
-        if (cam_frame != 0):
-            if model_name_raw==b'\x83J\x83\x81\x83\x89\x81E\x8f\xc6\x96\xbe':
-                pass
+        if (cam_frame != 0) and (bone_frame == 0) and (vmd_data.name=="カメラ・照明"):
+            print("vmd is camera")
             for i in range(cam_frame):
                 block=data[61*i:61*(i+1)]
-                print(block)
                 time=bytes_to_int(block[0:4])
                 dist=bytes_to_float(block[4:8])
+                #move
                 x=bytes_to_float(block[8:12])
                 y=bytes_to_float(block[12:16])
                 z=bytes_to_float(block[16:20])
+                #rotate
                 xr=bytes_to_float(block[20:24])
                 yr=bytes_to_float(block[24:28])
                 zr=bytes_to_float(block[28:32])
@@ -261,7 +277,6 @@ def vmd_to_data(infile):
                 int_fov_tr_y=bytes_to_int(block[55:56])
                 
                 fov=bytes_to_int(block[56:60])
-                #24 value curve
                 vmd_data.cam.append([time,dist,x,y,z,xr,yr,zr,
                               int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
                               int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
@@ -269,14 +284,20 @@ def vmd_to_data(infile):
                               int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y,
                               int_dis_bl_x,int_dis_bl_y,int_dis_tr_x,int_dis_tr_y,
                               int_fov_bl_x,int_fov_bl_y,int_fov_tr_x,int_fov_tr_y,fov])
-                print([time,dist,x,y,z,xr,yr,zr,
+                if debug==1:
+                    print(i,"- Cam on frame",time)
+                    print_byte(block)
+                    print([time,dist,x,y,z,xr,yr,zr,
                               int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
                               int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
                               int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
                               int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y,
                               int_dis_bl_x,int_dis_bl_y,int_dis_tr_x,int_dis_tr_y,
                               int_fov_bl_x,int_fov_bl_y,int_fov_tr_x,int_fov_tr_y,fov])
+                    
                 data=data[61*(i+1):]
+        elif ( cam_frame != 0 ) and (bone_frame == 0) and (vmd_data.name=="カメラ・照明"):
+            print("Warning:cam & bone frame >0")
 
         #light
         light_frame=bytes_to_int(data[0:4])
@@ -304,7 +325,6 @@ def vmd_to_data(infile):
         if (shadow_frame != 0):
             for i in range(shadow_frame):
                 block=data[13*i:13*(i+1)]
-                print(block)
                 time=bytes_to_int(block[0:4])
                 mode=bytes_to_int(block[4:5])
                 
@@ -332,13 +352,13 @@ def vmd_to_data(infile):
                 vmd_data.ik.append(ik_block)
             print(vmd_data.ik)
 
-                
         print("Rest data is",data)
 
         
     return vmd_data
             
 def data_to_txt(out_file,name="",bone=[],facial=[],cam=[],light=[],shadow=[],ik=[]):
+    print("data to txt")
     with open(out_file, 'w', newline='') as csvfile:
         out_writer = csv.writer(csvfile, delimiter=',')
         if len(facial) > 0 :
@@ -350,7 +370,7 @@ def data_to_txt(out_file,name="",bone=[],facial=[],cam=[],light=[],shadow=[],ik=
         if len(cam) > 0 :
             for i in cam:
                 print(i)
-                out_writer.writerow(["camera_example","name","time","dist","x","y","z","xr","yr","zr","20","108","20","108","20","108","20","108","20","108","20","108","20","108","20","108","20","108","20","108","20","108","20","108","fov"]) 
+                #out_writer.writerow(["camera_example","name","time","dist","x","y","z","xr","yr","zr","x_bl_x","x_bl_y","x_tr_x","x_tr_y","y_bl_x","y_bl_y","y_tr_x","y_tr_y","z_bl_x","z_bl_y","z_tr_x","z_tr_y","rot_bl_x","rot_bl_y","rot_tr_x","rot_tr_y","20","108","20","108","20","108","20","108","20","108","20","108","fov"]) 
                 out_writer.writerow(["camera_frame"]+i)
         if len(light) > 0 :
             for i in light:
@@ -367,11 +387,10 @@ def data_to_txt(out_file,name="",bone=[],facial=[],cam=[],light=[],shadow=[],ik=
                 for j in ik_data[2]:
                     ik_bone=ik_bone+str(j)
                 out_writer.writerow(["ik_frame"]+ik_bone )
-
-            
     return
 
 def txt_to_data(in_txt):
+    print("txt to data")
     name=""
     bone_data=[]
     facial_data=[]
