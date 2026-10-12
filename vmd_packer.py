@@ -72,14 +72,26 @@ class vmd:
     def show(self):
         print("Model name:",self.name)
 
-def print_byte(in_byte):
+def print_byte(in_byte,raw=1):
     out=""
+    j=0
+    print("================================")
+    if raw==1:
+        print(in_byte)
+    print("length:",str(len(in_byte))+"("+str(hex(len(in_byte)))+")")
     for i in in_byte:
+        if ( (j % 16) == 0 ):
+            if (j != 0):
+                out=out+"\n"
+            out=out+"0x"+f"{16*round(j/16):04X}"+" "
         if len(hex(i))==3:
             out=out+"0"+hex(i)[2:]+" "
         else:
             out=out+hex(i)[2:]+" "
+
+        j=j+1
     print(out)
+    print("================================")
         
 def decode(name_raw):
     #print(model_name_raw)
@@ -140,7 +152,7 @@ def vmd_to_data(infile):
             data = f.read()
         if debug==1:
             print("Debug - Data")
-            print_byte(data)
+            print_byte(data,0)
         if debug==1:
             print("Debug - Header")
             print_byte(data[0:30])
@@ -285,7 +297,7 @@ def vmd_to_data(infile):
                               int_dis_bl_x,int_dis_bl_y,int_dis_tr_x,int_dis_tr_y,
                               int_fov_bl_x,int_fov_bl_y,int_fov_tr_x,int_fov_tr_y,fov])
                 if debug==1:
-                    print(i,"- Cam on frame",time)
+                    print("Debug - Cam on frame",time)
                     print_byte(block)
                     print([time,dist,x,y,z,xr,yr,zr,
                               int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
