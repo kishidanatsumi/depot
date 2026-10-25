@@ -147,230 +147,235 @@ def vmd_to_data(infile):
     is_camera=0
     vmd_data=vmd("",[],[],[],[],[],[])
     print("input file:",infile)
-    with open(os.path.splitext(os.path.basename(infile))[0]+".txt", "w",newline='',encoding='shift-jis') as out_file:
-        out_writer=csv.writer(out_file, delimiter=',')
-        with open(infile, 'rb') as f:
-            data = f.read()
-        if debug==1:
-            print("Debug - Data")
-            print_byte(data,0)
-        if debug==1:
-            print("Debug - Header")
-            print_byte(data[0:30])
+    with open(infile, 'rb') as f:
+        data = f.read()
+    if debug==1:
+        print("Debug - Data")
+        print_byte(data,0)
+    if debug==1:
+        print("Debug - Header")
+        print_byte(data[0:30])
 
 
-        #model name
-        if debug==1:
-            print("Debug - Model name")
-            print_byte(data[30:50])
-        vmd_data.name=decode(data[30:50].split(b'\x00')[0])
-        print("Model:",vmd_data.name)
-        data=data[50:]
-        
-        #bone
-        bone_list=[]
-        bone_frame=int.from_bytes(data[0:4], byteorder='little', signed=False)
-        print("Bone frame:",bone_frame)
-        data=data[4:]
-        if (bone_frame != 0):
-            for i in range(bone_frame):
-                        block=data[111*i:111*(i+1)]
+    #model name
+    if debug==1:
+        print("Debug - Model name")
+        print_byte(data[30:50])
+    vmd_data.name=decode(data[30:50].split(b'\x00')[0])
+    print("Model:",vmd_data.name)
+    data=data[50:]
+    
+    #bone
+    bone_list=[]
+    bone_frame=int.from_bytes(data[0:4], byteorder='little', signed=False)
+    print("Bone frame:",bone_frame)
+    data=data[4:]
+    if (bone_frame != 0):
+        for i in range(bone_frame):
+            block=data[111*i:111*(i+1)]
 
-                        name=decode(block[0:15].split(b'\x00')[0])
-                        time=bytes_to_int(block[15:19])
-                        #position
-                        x=bytes_to_float(block[19:23])
-                        y=bytes_to_float(block[23:27])
-                        z=bytes_to_float(block[27:31])
-                        #rotation
-                        xr=bytes_to_float(block[31:35])
-                        yr=bytes_to_float(block[35:39])
-                        zr=bytes_to_float(block[39:43])
-                        wr=bytes_to_float(block[43:47])
+            name=decode(block[0:15].split(b'\x00')[0])
+            time=bytes_to_int(block[15:19])
+            #position
+            x=bytes_to_float(block[19:23])
+            y=bytes_to_float(block[23:27])
+            z=bytes_to_float(block[27:31])
+            #rotation
+            xr=bytes_to_float(block[31:35])
+            yr=bytes_to_float(block[35:39])
+            zr=bytes_to_float(block[39:43])
+            wr=bytes_to_float(block[43:47])
+            print("quat;",[xr,yr,zr,wr])
+            in_rot=rot.from_quat([xr,yr,zr,wr])
+            rot_x,rot_y,rot_z=in_rot.as_euler('zxy',degrees=True)
+            print("rot;",[rot_x,rot_y,rot_z])
+            #interpolate curve
+            int_x_bl_x=bytes_to_int(block[47:48])
+            int_x_bl_y=bytes_to_int(block[51:52])
+            int_x_tr_x=bytes_to_int(block[55:56])
+            int_x_tr_y=bytes_to_int(block[59:60])
+            int_y_bl_x=bytes_to_int(block[63:64])
+            int_y_bl_y=bytes_to_int(block[67:68])
+            int_y_tr_x=bytes_to_int(block[71:72])
+            int_y_tr_y=bytes_to_int(block[75:76])
+            int_z_bl_x=bytes_to_int(block[79:80])
+            int_z_bl_y=bytes_to_int(block[83:84])
+            int_z_tr_x=bytes_to_int(block[87:88])
+            int_z_tr_y=bytes_to_int(block[91:92])
+            int_rot_bl_x=bytes_to_int(block[95:96])
+            int_rot_bl_y=bytes_to_int(block[99:100])
+            int_rot_tr_x=bytes_to_int(block[103:104])
+            int_rot_tr_y=bytes_to_int(block[107:108])
 
-                        in_rot=rot.from_quat([xr,yr,zr,wr])
-                        rot_x,rot_y,rot_z=in_rot.as_euler('zxy',degrees=True)
-                        
-                        #interpolate curve
-                        int_x_bl_x=bytes_to_int(block[47:48])
-                        int_x_bl_y=bytes_to_int(block[51:52])
-                        int_x_tr_x=bytes_to_int(block[55:56])
-                        int_x_tr_y=bytes_to_int(block[59:60])
-                        int_y_bl_x=bytes_to_int(block[63:64])
-                        int_y_bl_y=bytes_to_int(block[67:68])
-                        int_y_tr_x=bytes_to_int(block[71:72])
-                        int_y_tr_y=bytes_to_int(block[75:76])
-                        int_z_bl_x=bytes_to_int(block[79:80])
-                        int_z_bl_y=bytes_to_int(block[83:84])
-                        int_z_tr_x=bytes_to_int(block[87:88])
-                        int_z_tr_y=bytes_to_int(block[91:92])
-                        int_rot_bl_x=bytes_to_int(block[95:96])
-                        int_rot_bl_y=bytes_to_int(block[99:100])
-                        int_rot_tr_x=bytes_to_int(block[103:104])
-                        int_rot_tr_y=bytes_to_int(block[107:108])
+            vmd_data.bone.append([name,time,x,y,z,xr,yr,zr,wr,
+                  int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
+                  int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
+                  int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
+                  int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y])
+            print(i,"- Bone",name,"on frame",time)
+            
+            if debug==1:
+                print_byte(block)
+                print([name,time,x,y,z,rot_x,rot_y,rot_z,
+                  int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
+                  int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
+                  int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
+                  int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y])
 
-                        vmd_data.bone.append([name,time,x,y,z,xr,yr,zr,wr,
-                              int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
-                              int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
-                              int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
-                              int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y])
-                        print(i,"- Bone",name,"on frame",time)
-                        
-                        if debug==1:
-                            print_byte(block)
-                            print([name,time,x,y,z,rot_x,rot_y,rot_z,
-                              int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
-                              int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
-                              int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
-                              int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y])
-                            
-
-                            
             data=data[111*(i+1):]
 
-        #facial
-        facial_frame=bytes_to_int(data[0:4])
-        data=data[4:]
-        print("Facial frame:",facial_frame)
-        facial_list=[]
-        if (facial_frame != 0):
-            for i in range(facial_frame):
-                    block=data[23*i:23*(i+1)]
-                    name=decode(block[0:15].split(b'\x00')[0])
-                    time=bytes_to_int(block[15:19])
-                    #print(block[0:15],facial_name)
-                    weight=bytes_to_float(block[19:23])
-                    #facial_data=[facial_name,time,weight]
-                    vmd_data.facial.append([name,time,weight])
-            data=data[23*(i+1):]
-            if debug==1:
-                    print(i,"- Facial",name,"on frame",time)
-                    print_byte(block)
-                    
-        #cam
-        cam_frame=bytes_to_int(data[0:4])
-        data=data[4:]
-        print("Camera frame:",cam_frame)
-        cam_list=[]
-        if (cam_frame != 0) and (bone_frame == 0) and (vmd_data.name=="カメラ・照明"):
-            print("vmd is camera")
-            for i in range(cam_frame):
-                block=data[61*i:61*(i+1)]
-                time=bytes_to_int(block[0:4])
-                dist=bytes_to_float(block[4:8])
-                #move
-                x=bytes_to_float(block[8:12])
-                y=bytes_to_float(block[12:16])
-                z=bytes_to_float(block[16:20])
-                #rotate
-                xr=bytes_to_float(block[20:24])
-                yr=bytes_to_float(block[24:28])
-                zr=bytes_to_float(block[28:32])
-                xr=-math.degrees(xr)
-                yr=math.degrees(yr)
-                zr=math.degrees(zr)
-                #interpolate curve
-                int_x_bl_x=bytes_to_int(block[32:33])
-                int_x_bl_y=bytes_to_int(block[33:34])
-                int_x_tr_x=bytes_to_int(block[34:35])
-                int_x_tr_y=bytes_to_int(block[35:36])
-                int_y_bl_x=bytes_to_int(block[36:37])
-                int_y_bl_y=bytes_to_int(block[37:38])
-                int_y_tr_x=bytes_to_int(block[38:39])
-                int_y_tr_y=bytes_to_int(block[39:40])
-                int_z_bl_x=bytes_to_int(block[40:41])
-                int_z_bl_y=bytes_to_int(block[41:42])
-                int_z_tr_x=bytes_to_int(block[42:43])
-                int_z_tr_y=bytes_to_int(block[43:44])
-                int_rot_bl_x=bytes_to_int(block[44:45])
-                int_rot_bl_y=bytes_to_int(block[45:46])
-                int_rot_tr_x=bytes_to_int(block[46:47])
-                int_rot_tr_y=bytes_to_int(block[47:48])
-                int_dis_bl_x=bytes_to_int(block[48:49])
-                int_dis_bl_y=bytes_to_int(block[49:50])
-                int_dis_tr_x=bytes_to_int(block[50:51])
-                int_dis_tr_y=bytes_to_int(block[51:52])
-                int_fov_bl_x=bytes_to_int(block[52:53])
-                int_fov_bl_y=bytes_to_int(block[53:54])
-                int_fov_tr_x=bytes_to_int(block[54:55])
-                int_fov_tr_y=bytes_to_int(block[55:56])
+
+    #facial
+    facial_frame=bytes_to_int(data[0:4])
+    data=data[4:]
+    print("Facial frame:",facial_frame)
+    facial_list=[]
+    if (facial_frame != 0):
+        for i in range(facial_frame):
+                block=data[23*i:23*(i+1)]
+                name=decode(block[0:15].split(b'\x00')[0])
+                time=bytes_to_int(block[15:19])
+                #print(block[0:15],facial_name)
+                weight=bytes_to_float(block[19:23])
+                #facial_data=[facial_name,time,weight]
+                vmd_data.facial.append([name,time,weight])
+        data=data[23*(i+1):]
+        if debug==1:
+                print(i,"- Facial",name,"on frame",time)
+                print_byte(block)
                 
-                fov=bytes_to_int(block[56:60])
-                vmd_data.cam.append([time,dist,x,y,z,xr,yr,zr,
-                              int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
-                              int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
-                              int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
-                              int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y,
-                              int_dis_bl_x,int_dis_bl_y,int_dis_tr_x,int_dis_tr_y,
-                              int_fov_bl_x,int_fov_bl_y,int_fov_tr_x,int_fov_tr_y,fov])
-                if debug==1:
-                    print("Debug - Cam on frame",time)
-                    print_byte(block)
-                    print([time,dist,x,y,z,xr,yr,zr,
-                              int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
-                              int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
-                              int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
-                              int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y,
-                              int_dis_bl_x,int_dis_bl_y,int_dis_tr_x,int_dis_tr_y,
-                              int_fov_bl_x,int_fov_bl_y,int_fov_tr_x,int_fov_tr_y,fov])
-                    
-                data=data[61*(i+1):]
-        elif ( cam_frame != 0 ) and (bone_frame == 0) and (vmd_data.name=="カメラ・照明"):
-            print("Warning:cam & bone frame >0")
+    #cam
+    cam_frame=bytes_to_int(data[0:4])
+    data=data[4:]
+    print("Camera frame:",cam_frame)
+    cam_list=[]
+    if (cam_frame != 0) and (bone_frame == 0) and (vmd_data.name=="カメラ・照明"):
+        print("vmd is camera")
+        for i in range(cam_frame):
+            block=data[61*i:61*(i+1)]
+            time=bytes_to_int(block[0:4])
+            dist=bytes_to_float(block[4:8])
+            #move
+            x=bytes_to_float(block[8:12])
+            y=bytes_to_float(block[12:16])
+            z=bytes_to_float(block[16:20])
+            #rotate
+            xr=bytes_to_float(block[20:24])
+            yr=bytes_to_float(block[24:28])
+            zr=bytes_to_float(block[28:32])
+            xr=-math.degrees(xr)
+            yr=math.degrees(yr)
+            zr=math.degrees(zr)
+            #interpolate curve
+            int_x_bl_x=bytes_to_int(block[32:33])
+            int_x_bl_y=bytes_to_int(block[33:34])
+            int_x_tr_x=bytes_to_int(block[34:35])
+            int_x_tr_y=bytes_to_int(block[35:36])
+            int_y_bl_x=bytes_to_int(block[36:37])
+            int_y_bl_y=bytes_to_int(block[37:38])
+            int_y_tr_x=bytes_to_int(block[38:39])
+            int_y_tr_y=bytes_to_int(block[39:40])
+            int_z_bl_x=bytes_to_int(block[40:41])
+            int_z_bl_y=bytes_to_int(block[41:42])
+            int_z_tr_x=bytes_to_int(block[42:43])
+            int_z_tr_y=bytes_to_int(block[43:44])
+            int_rot_bl_x=bytes_to_int(block[44:45])
+            int_rot_bl_y=bytes_to_int(block[45:46])
+            int_rot_tr_x=bytes_to_int(block[46:47])
+            int_rot_tr_y=bytes_to_int(block[47:48])
+            int_dis_bl_x=bytes_to_int(block[48:49])
+            int_dis_bl_y=bytes_to_int(block[49:50])
+            int_dis_tr_x=bytes_to_int(block[50:51])
+            int_dis_tr_y=bytes_to_int(block[51:52])
+            int_fov_bl_x=bytes_to_int(block[52:53])
+            int_fov_bl_y=bytes_to_int(block[53:54])
+            int_fov_tr_x=bytes_to_int(block[54:55])
+            int_fov_tr_y=bytes_to_int(block[55:56])
+            
+            fov=bytes_to_int(block[56:60])
+            vmd_data.cam.append([time,dist,x,y,z,xr,yr,zr,
+                          int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
+                          int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
+                          int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
+                          int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y,
+                          int_dis_bl_x,int_dis_bl_y,int_dis_tr_x,int_dis_tr_y,
+                          int_fov_bl_x,int_fov_bl_y,int_fov_tr_x,int_fov_tr_y,fov])
+            if debug==1:
+                print("Debug - Cam on frame",time)
+                print_byte(block)
+                print([time,dist,x,y,z,xr,yr,zr,
+                          int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
+                          int_y_bl_x,int_y_bl_y,int_y_tr_x,int_y_tr_y,
+                          int_z_bl_x,int_z_bl_y,int_z_tr_x,int_z_tr_y,
+                          int_rot_bl_x,int_rot_bl_y,int_rot_tr_x,int_rot_tr_y,
+                          int_dis_bl_x,int_dis_bl_y,int_dis_tr_x,int_dis_tr_y,
+                          int_fov_bl_x,int_fov_bl_y,int_fov_tr_x,int_fov_tr_y,fov])
+                
+            data=data[61*(i+1):]
+    elif ( cam_frame != 0 ) and (bone_frame == 0) and (vmd_data.name=="カメラ・照明"):
+        print("Warning:cam & bone frame >0")
 
-        #light
-        light_frame=bytes_to_int(data[0:4])
-        data=data[4:]
-        print("Light frame:",light_frame)
-        light_list=[]
-        if (light_frame != 0):
-            for i in range(light_frame):
-                block=data[28*i:28*(i+1)]
-                time=bytes_to_int(block[0:4])
-                lightr=bytes_to_float(block[4:8])
-                lightg=bytes_to_float(block[8:12])
-                lightb=bytes_to_float(block[12:16])
-                x=bytes_to_float(block[16:20])
-                y=bytes_to_float(block[20:24])
-                z=bytes_to_float(block[24:28])
-                vmd_data.light.append([time,lightr,lightg,lightb,x,y,z])
-                data=data[28*(i+1):]
-        
-        #shadow
-        shadow_frame=bytes_to_int(data[0:4])
-        data=data[4:]
-        print("shadow frame:",shadow_frame)
-        shadow_list=[]
-        if (shadow_frame != 0):
-            for i in range(shadow_frame):
-                block=data[13*i:13*(i+1)]
-                time=bytes_to_int(block[0:4])
-                mode=bytes_to_int(block[4:5])
-                shadow_range=round(10000 - (bytes_to_float(block[5:13]) * 100000))
-                vmd_data.light.append([mode,shadow_range])
-                data=data[13*(i+1):]
+    #light
+    light_frame=bytes_to_int(data[0:4])
+    data=data[4:]
+    print("Light frame:",light_frame)
+    light_list=[]
+    if (light_frame != 0):
+        for i in range(light_frame):
+            block=data[28*i:28*(i+1)]
+            time=bytes_to_int(block[0:4])
+            lightr=bytes_to_float(block[4:8])
+            lightg=bytes_to_float(block[8:12])
+            lightb=bytes_to_float(block[12:16])
+            x=bytes_to_float(block[16:20])
+            y=bytes_to_float(block[20:24])
+            z=bytes_to_float(block[24:28])
+            vmd_data.light.append([time,lightr,lightg,lightb,x,y,z])
+            data=data[28*(i+1):]
+        if debug==1:
+            print("Debug - Light on frame",time)
+            print_byte(block)
+            print([time,lightr,lightg,lightb,x,y,z])
+            
+    #shadow
+    shadow_frame=bytes_to_int(data[0:4])
+    data=data[4:]
+    print("Shadow frame:",shadow_frame)
+    shadow_list=[]
+    if (shadow_frame != 0):
+        for i in range(shadow_frame):
+            block=data[13*i:13*(i+1)]
+            time=bytes_to_int(block[0:4])
+            mode=bytes_to_int(block[4:5])
+            shadow_range=round(10000 - (bytes_to_float(block[5:13]) * 100000))
+            vmd_data.shadow.append([time,mode,shadow_range])
+            data=data[13*(i+1):]
+        if debug==1:
+            print("Debug - Shadow on frame",time)
+            print_byte(block)
+            print([time,mode,shadow_range])
+            
 
+    #IK
+    ik_frame=bytes_to_int(data[0:4])
+    data=data[4:]
+    print("ik frame:",ik_frame)
+    if (ik_frame != 0):
+        for i in range(ik_frame):
+            time=bytes_to_int(data[0:4])
+            ap=bytes_to_int(data[4:5])
+            ik_number=bytes_to_int(data[5:9])
+            ik_block=[time,ap,[]]
+            data=data[9:]
+            for i in range(ik_number):
+                name=decode(data[0:20].split(b'\x00')[0])
+                enable=bytes_to_int(data[20:21])
+                ik_block[2].append([name,enable])
+                data=data[21:]
+            vmd_data.ik.append(ik_block)
+        print(vmd_data.ik)
 
-        #IK
-        ik_frame=bytes_to_int(data[0:4])
-        data=data[4:]
-        print("ik frame:",ik_frame)
-        if (ik_frame != 0):
-            for i in range(ik_frame):
-                time=bytes_to_int(data[0:4])
-                ap=bytes_to_int(data[4:5])
-                ik_number=bytes_to_int(data[5:9])
-                ik_block=[time,ap,[]]
-                data=data[9:]
-                for i in range(ik_number):
-                    name=decode(data[0:20].split(b'\x00')[0])
-                    enable=bytes_to_int(data[20:21])
-                    ik_block[2].append([name,enable])
-                    data=data[21:]
-                vmd_data.ik.append(ik_block)
-            print(vmd_data.ik)
-
-        print("Rest data is",data)
+    print("Rest data is",data)
 
         
     return vmd_data
@@ -402,10 +407,10 @@ def data_to_txt(out_file,name="",bone=[],facial=[],cam=[],light=[],shadow=[],ik=
         if len(ik) > 0 :
             for i in ik:
                 out_writer.writerow(["ik_example","time","model_ap","ik list"])
-                ik_bone=""
-                for j in ik_data[2]:
-                    ik_bone=ik_bone+str(j)
-                out_writer.writerow(["ik_frame"]+ik_bone )
+                #print(i)
+                #for j in ik[2]:
+                #    ik_bone=ik_bone+str(j)
+                out_writer.writerow(["ik_frame"]+i )
     return
 
 def txt_to_data(in_txt):
@@ -505,11 +510,11 @@ def data_to_vmd(name="NA",bone=[],facial=[],cam=[],light=[],shadow=[],ik=[]):
         for j in i[2]:
             out_data=out_data+pad(j[0].encode('shift-jis'),20)+int_to_bytes(j[1],1)
         
-        
+    print_byte(out_data)
     with open("out.vmd", "wb") as out_file:
         out_file.write(out_data)
 
-infile='cam.vmd'
+infile='ik.vmd'
 if infile.endswith(".txt"):
     print("txt to vmd")
 elif infile.endswith(".vmd"):
@@ -518,6 +523,5 @@ else:
     print("file is not txt or vmd, exit")
     exit()
 vmd_data=vmd_to_data(infile)
-data_to_vmd(name=vmd_data.name,bone=vmd_data.bone,facial=vmd_data.facial,cam=vmd_data.cam,light=vmd_data.light,ik=vmd_data.ik)
-#data_to_txt(out_file="./out.txt",name=vmd_data.name,bone=vmd_data.bone,facial=vmd_data.facial,cam=vmd_data.cam,shadow=vmd_data.shadow,light=vmd_data.light,ik=vmd_data.ik)
+data_to_vmd(name=vmd_data.name,bone=vmd_data.bone,facial=vmd_data.facial,cam=vmd_data.cam,shadow=vmd_data.shadow,light=vmd_data.light,ik=vmd_data.ik)
 data_to_txt(out_file="./out.txt",name=vmd_data.name,bone=vmd_data.bone,facial=vmd_data.facial,cam=vmd_data.cam,shadow=vmd_data.shadow,light=vmd_data.light,ik=vmd_data.ik)
