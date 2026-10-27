@@ -72,7 +72,7 @@ class vmd:
     def show(self):
         print("Model name:",self.name)
 
-def print_byte(in_byte,raw=1):
+def print_byte(in_byte,raw=0):
     out=""
     j=0
     print("================================")
@@ -215,6 +215,7 @@ def vmd_to_data(infile):
             print(i,"- Bone",name,"on frame",time)
             
             if debug==1:
+                print(i,"- Bone",name,"on frame",time)
                 print_byte(block)
                 print([name,time,x,y,z,rot_x,rot_y,rot_z,
                   int_x_bl_x,int_x_bl_y,int_x_tr_x,int_x_tr_y,
@@ -366,6 +367,7 @@ def vmd_to_data(infile):
             ap=bytes_to_int(data[4:5])
             ik_number=bytes_to_int(data[5:9])
             ik_block=[time,ap,[]]
+            block=data[0:(9+21*ik_number)]
             data=data[9:]
             for i in range(ik_number):
                 name=decode(data[0:20].split(b'\x00')[0])
@@ -373,7 +375,10 @@ def vmd_to_data(infile):
                 ik_block[2].append([name,enable])
                 data=data[21:]
             vmd_data.ik.append(ik_block)
-        print(vmd_data.ik)
+        if debug==1:
+            print("Debug - IK on frame",time)
+            print_byte(block)
+            print(ik_block)
 
     print("Rest data is",data)
 
@@ -382,7 +387,7 @@ def vmd_to_data(infile):
             
 def data_to_txt(out_file,name="",bone=[],facial=[],cam=[],light=[],shadow=[],ik=[]):
     print("data to txt")
-    with open(out_file, 'w', newline='') as csvfile:
+    with open(out_file, 'w', newline='', encoding='shift-jis') as csvfile:
         out_writer = csv.writer(csvfile, delimiter=',')
         if len(facial) > 0 :
             for i in data:
@@ -407,10 +412,8 @@ def data_to_txt(out_file,name="",bone=[],facial=[],cam=[],light=[],shadow=[],ik=
         if len(ik) > 0 :
             for i in ik:
                 out_writer.writerow(["ik_example","time","model_ap","ik list"])
-                #print(i)
-                #for j in ik[2]:
-                #    ik_bone=ik_bone+str(j)
-                out_writer.writerow(["ik_frame"]+i )
+                
+                out_writer.writerow(["ik_frame"]+i)
     return
 
 def txt_to_data(in_txt):
@@ -510,7 +513,7 @@ def data_to_vmd(name="NA",bone=[],facial=[],cam=[],light=[],shadow=[],ik=[]):
         for j in i[2]:
             out_data=out_data+pad(j[0].encode('shift-jis'),20)+int_to_bytes(j[1],1)
         
-    print_byte(out_data)
+    #print_byte(out_data)
     with open("out.vmd", "wb") as out_file:
         out_file.write(out_data)
 
