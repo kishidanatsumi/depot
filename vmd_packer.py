@@ -41,8 +41,7 @@ class vmd:
         [20:23]"旋转"左下点x/y 右上点x/y float
         [24:27]"距离"左下点x/y 右上点x/y float
         [28:31]"FOV"左下点x/y 右上点x/y float
-        [32:35]""左下点x/y 右上点x/y float
-        [36]FOV int
+        [32]FOV int
         '''
         self.cam=cam
 
