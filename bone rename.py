@@ -100,6 +100,8 @@ dic_sifas = {
 }
 
 dic_mltd = {
+"BASE":"全ての親",
+
 "KOSHI":"下半身","MUNE1":"上半身","MUNE2":"上半身2","KUBI":"首","ATAMA":"頭",
 
 "MOMO_L":"左足","HIZA_L":"左ひざ","ASHI_L":"左足首","TSUMASAKI_L":"左つま先",
@@ -118,8 +120,8 @@ dic_mltd = {
 "SAKOTSU_L":"左肩","KATA_L":"左腕","UDE_L":"左ひじ","TE_L":"左手首",
 "SAKOTSU_R":"右肩","KATA_R":"右腕","UDE_R":"右ひじ","TE_R":"右手首",
 
-"WAKI_L__slerp_KATA_L__i30_x0":"左肩x0","KATA_RT_L__twist_x0":"左腕x0","KATA_MD_L__twist_x50":"左腕x50","UDE_MD_L__rot_TE_L__x50":"左ひじx50_2",
-"WAKI_R__slerp_KATA_R__i30_x0":"右肩x0","KATA_RT_R__twist_x0":"右腕x0","KATA_MD_R__twist_x50":"右腕x50","UDE_MD_R__rot_TE_R__x50":"右ひじx50_2",
+"WAKI_L__slerp_KATA_L__i30_x0":"左肩x0_2","KATA_RT_L__twist_x0":"左腕x0","KATA_MD_L__twist_x50":"左腕x50","UDE_MD_L__rot_TE_L__x50":"左ひじx50_2",
+"WAKI_R__slerp_KATA_R__i30_x0":"右肩x0_2","KATA_RT_R__twist_x0":"右腕x0","KATA_MD_R__twist_x50":"右腕x50","UDE_MD_R__rot_TE_R__x50":"右ひじx50_2",
 "TEKUBI_L__rot_TE_L__x100":"左ひじx100","TEKUBI_R__rot_TE_R__x100":"右ひじx100",
     
 "HIJI_R__rot_UDE_R__z50":"右ひじ_rot",
